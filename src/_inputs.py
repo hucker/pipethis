@@ -12,7 +12,7 @@ class FromFile(InputBase):
     def stream(self) -> Iterable[LineInfo]:
         with open(self.filepath) as file:
             for line_number, line in enumerate(file, start=1):
-                yield LineInfo(line_number=line_number, resource_name=str(self.filepath), line=line.strip())
+                yield LineInfo(sequence_id=line_number, resource_name=str(self.filepath), data=line.strip())
 
 
 class FromFolder:
@@ -135,5 +135,5 @@ class FromString(InputBase):
         self.sep = separator
 
     def stream(self) -> Iterable[LineInfo]:
-        for line_number, line in enumerate(self.text.split(self.sep), start=1):
-            yield LineInfo(line_number=line_number, resource_name=self.name, line=line)
+        for line_number, data in enumerate(self.text.split(self.sep), start=1):
+            yield LineInfo(sequence_id=line_number, resource_name=self.name, data=data)

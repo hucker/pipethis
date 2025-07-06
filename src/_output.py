@@ -12,9 +12,9 @@ class ToStdOut(OutputBase):
             lineinfo (LineInfo): The LineInfo object to write.
         """
         super().__init__()
-        msg = lineinfo.line
+        msg = lineinfo.data
         self.update_size(msg)
-        print(lineinfo.line)
+        print(lineinfo.data)
 
 
 class ToFile(OutputBase):
@@ -37,7 +37,7 @@ class ToFile(OutputBase):
         Args:
             lineinfo (LineInfo): The LineInfo object to write.
         """
-        msg = lineinfo.line + "\n"
+        msg = lineinfo.data + "\n"
         self.file.write(msg)
         self.update_size(msg)
 
@@ -59,6 +59,6 @@ class ToString(OutputBase):
         Args:
             lineinfo (LineInfo): The LineInfo object to write.
         """
-        msg = lineinfo.line + '\n'
+        msg = lineinfo.data + '\n'
         self.update_size(msg)
         self.text_output += str(msg)

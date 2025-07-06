@@ -1,14 +1,55 @@
 from abc import ABC, abstractmethod
-from typing import Iterable
+from typing import Iterable,Any
+import dataclasses
 
-from _lineinfo import LineInfo
+
+@dataclasses.dataclass
+class DataInfo(ABC):
+    """
+    A base class representing streaming data information in a generalized form.
+
+    The sequence ID and resource name can be used for error reporting.  For
+    example.
+
+    Pipeline Error: File-data.txt  Line-23  Invalid data - xxx
+
+    Attributes:
+        sequence_id (int): A sequential identifier for the data. The meaning is
+                           contextual (e.g., line # for text, row # for csv, frame # for video).
+                           Some data files don't have an idea of a sequence ID, such
+                           as image files.  In this case  just using sequence ID = 1 is fine.
+        resource_name (str): Name or identifier of the resource the data belongs to
+                             (e.g., file name, sheet name).
+        data (Any): The actual data being processed. Subclasses specify the type.
+    """
+
+    sequence_id: int     # Line number, page number, frame number
+    resource_name: str   # Typically a file name
+    data: Any            # Data flowing in pipeline
+
+    def __post_init__(self):
+        # Validate `sequence_id` (must be a positive integer)
+        if not isinstance(self.sequence_id, int) or self.sequence_id <= 0:
+            raise ValueError("sequence_id must be a positive integer")
+
+        # Validate `resource_name` (must be a non-empty string)
+        if not isinstance(self.resource_name, str) or not self.resource_name.strip():
+            raise ValueError("resource_name must be a non-empty string")
+
+        # Abstract validation for subclasses
+        self.validate()
+
+    @abstractmethod
+    def validate(self):
+        """Perform additional subclass-specific validation."""
+        pass # pragma: no cover
 
 
 class InputBase(ABC):
     """Base class for all input components."""
 
     @abstractmethod
-    def stream(self) -> Iterable[LineInfo]:
+    def stream(self) -> Iterable[DataInfo]:
         pass # pragma: no cover
 
 
@@ -17,7 +58,7 @@ class TransformBase(ABC):
     """Base class for all transformation components."""
 
     @abstractmethod
-    def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
+    def transform(self, lineinfo: DataInfo) -> Iterable[DataInfo]:
         pass # pragma: no cover
 
 
@@ -38,7 +79,7 @@ class OutputBase(ABC):
         return self._size
 
     @abstractmethod
-    def write(self, lineinfo: LineInfo):
+    def write(self, lineinfo: DataInfo):
         pass # pragma: no cover
 
     def close(self):

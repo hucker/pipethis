@@ -10,12 +10,12 @@ from _output import ToStdOut, ToFile,ToString
 @pytest.mark.parametrize("lines", [
     # Test case with multiple lines
     [
-        LineInfo(line_number=1,line="Line 1: Test",resource_name='test'),
-        LineInfo(line_number=2, line="Line 2: More tests",resource_name='test'),
+        LineInfo(sequence_id=1, data="Line 1: Test", resource_name='test'),
+        LineInfo(sequence_id=2, data="Line 2: More tests", resource_name='test'),
     ],
     # Test case with a single line
     [
-        LineInfo(line_number=1, line="Single line test",resource_name='test'),
+        LineInfo(sequence_id=1, data="Single line test", resource_name='test'),
     ],
     # Test case with no lines (empty input)
     []
@@ -34,7 +34,7 @@ def test_standard_output(capsys, lines):
     captured = capsys.readouterr()
 
     # Build the expected output string from the `lines` list
-    expected_output = "\n".join(lineinfo.line for lineinfo in lines) + ("\n" if lines else "")
+    expected_output = "\n".join(lineinfo.data for lineinfo in lines) + ("\n" if lines else "")
 
     # Assert the captured stdout matches the expected output
     assert captured.out == expected_output
@@ -43,12 +43,12 @@ def test_standard_output(capsys, lines):
 @pytest.mark.parametrize("lines", [
     # Test case with multiple lines
     [
-        LineInfo(line_number=1, line="Line 1: File Test",resource_name='test'),
-        LineInfo(line_number=2, line="Line 2: File Output",resource_name='test'),
+        LineInfo(sequence_id=1, data="Line 1: File Test", resource_name='test'),
+        LineInfo(sequence_id=2, data="Line 2: File Output", resource_name='test'),
     ],
     # Test case with a single line
     [
-        LineInfo(line_number=1, line="Single line file test",resource_name='test'),
+        LineInfo(sequence_id=1, data="Single line file test", resource_name='test'),
     ],
     # Test case with no lines (empty input)
     []
@@ -75,7 +75,7 @@ def test_file_output(tmp_path, lines):
         content = f.read()
 
     # Build the expected output string from the `lines` list
-    expected_output = "\n".join(lineinfo.line for lineinfo in lines) + ("\n" if lines else "")
+    expected_output = "\n".join(lineinfo.data for lineinfo in lines) + ("\n" if lines else "")
 
     # Assert the file content matches the expected output
     assert content == expected_output
@@ -90,10 +90,10 @@ from _transform import RegexSkipFilter, RegexSubstituteTransform
     "pattern, lineinfo, is_yielded",
     [
         # Lines that DO NOT match the pattern should be yielded
-        (r"skip.*", LineInfo(line_number=1, resource_name="ResourceA", line="do not skip this"), True),
-        (r"skip.*", LineInfo(line_number=2, resource_name="ResourceB", line="skip this line"), False),
-        (r"^\s*$", LineInfo(line_number=3, resource_name="ResourceC", line=" "), False),  # Empty or whitespace lines
-        (r"^\s*$", LineInfo(line_number=4, resource_name="ResourceD", line="content"), True),
+        (r"skip.*", LineInfo(sequence_id=1, resource_name="ResourceA", data="do not skip this"), True),
+        (r"skip.*", LineInfo(sequence_id=2, resource_name="ResourceB", data="skip this line"), False),
+        (r"^\s*$", LineInfo(sequence_id=3, resource_name="ResourceC", data=" "), False),  # Empty or whitespace lines
+        (r"^\s*$", LineInfo(sequence_id=4, resource_name="ResourceD", data="content"), True),
     ],
 )
 def test_regex_skip_filter(pattern, lineinfo, is_yielded):
@@ -116,14 +116,14 @@ def test_regex_skip_filter(pattern, lineinfo, is_yielded):
     "pattern, replacement, lineinfo, expected_line",
     [
         # Perform substitutions based on the regex pattern
-        (r"foo", "bar", LineInfo(line_number=1, resource_name="ResourceA", line="foo is fun"), "bar is fun"),
-        (r"\d+", "number", LineInfo(line_number=2, resource_name="ResourceB", line="123 is a number"),
+        (r"foo", "bar", LineInfo(sequence_id=1, resource_name="ResourceA", data="foo is fun"), "bar is fun"),
+        (r"\d+", "number", LineInfo(sequence_id=2, resource_name="ResourceB", data="123 is a number"),
          "number is a number"),
-        (r"cat|dog", "animal", LineInfo(line_number=3, resource_name="ResourceC", line="dog chased the cat"),
+        (r"cat|dog", "animal", LineInfo(sequence_id=3, resource_name="ResourceC", data="dog chased the cat"),
          "animal chased the animal"),
-        (r"skip this", "do this", LineInfo(line_number=4, resource_name="ResourceD", line="should I skip this?"),
+        (r"skip this", "do this", LineInfo(sequence_id=4, resource_name="ResourceD", data="should I skip this?"),
          "should I do this?"),
-        (r"no match", "nothing", LineInfo(line_number=5, resource_name="ResourceE", line="this line remains unchanged"),
+        (r"no match", "nothing", LineInfo(sequence_id=5, resource_name="ResourceE", data="this line remains unchanged"),
          "this line remains unchanged"),
     ],
 )
@@ -135,17 +135,17 @@ def test_regex_substitute_transform(pattern, replacement, lineinfo, expected_lin
     transformed = list(transform.transform(lineinfo))
 
     assert len(transformed) == 1  # Only one LineInfo object should be yielded
-    assert transformed[0].line == expected_line  # Ensure the substitution produced the expected line
-    assert transformed[0].line_number == lineinfo.line_number  # Other attributes remain unchanged
+    assert transformed[0].data == expected_line  # Ensure the substitution produced the expected line
+    assert transformed[0].sequence_id == lineinfo.sequence_id  # Other attributes remain unchanged
     assert transformed[0].resource_name == lineinfo.resource_name
 
 
 def test_string_output():
     # Arrange
     string_output = ToString()  # Create instance of ToString
-    line1 = LineInfo(line_number=1, resource_name="stringA", line="First line")
-    line2 = LineInfo(line_number=2, resource_name="stringA", line="Second line")
-    line3 = LineInfo(line_number=3, resource_name="stringA", line="Third line")
+    line1 = LineInfo(sequence_id=1, resource_name="stringA", data="First line")
+    line2 = LineInfo(sequence_id=2, resource_name="stringA", data="Second line")
+    line3 = LineInfo(sequence_id=3, resource_name="stringA", data="Third line")
 
     # Act
     string_output.write(line1)
@@ -160,8 +160,8 @@ def test_string_output():
 def test_string_output_empty_lineinfo():
     # Arrange
     string_output = ToString()
-    line1 = LineInfo(line_number=1, resource_name="stringA", line="")
-    line2 = LineInfo(line_number=2, resource_name="stringA", line="Valid line")
+    line1 = LineInfo(sequence_id=1, resource_name="stringA", data="")
+    line2 = LineInfo(sequence_id=2, resource_name="stringA", data="Valid line")
 
     # Act
     string_output.write(line1)  # Writing an empty line

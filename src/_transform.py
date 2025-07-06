@@ -11,19 +11,19 @@ class PassThrough(TransformBase):
 
 class UpperCase(TransformBase):
     def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
-        lineinfo.line = lineinfo.line.upper()
+        lineinfo.data = lineinfo.data.upper()
         yield lineinfo
 
 
 class LowerCase(TransformBase):
     def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
-        lineinfo.line = lineinfo.line.lower()
+        lineinfo.data = lineinfo.data.lower()
         yield lineinfo
 
 
 class AddMetaData(TransformBase):
     def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
-        lineinfo.line = f"{lineinfo.resource_name}:{lineinfo.line_number}:{lineinfo.line}"
+        lineinfo.data = f"{lineinfo.resource_name}:{lineinfo.sequence_id}:{lineinfo.data}"
         yield lineinfo
 
 
@@ -47,7 +47,7 @@ class RegexSkipFilter(TransformBase):
         Yields:
             LineInfo: Lines that do not match the regex.
         """
-        if not self.regex.match(lineinfo.line):
+        if not self.regex.match(lineinfo.data):
             yield lineinfo
 
 
@@ -73,7 +73,7 @@ class RegexSubstituteTransform(TransformBase):
         Yields:
             LineInfo: Lines with substituted content (or unchanged if no match).
         """
-        lineinfo.line = self.regex.sub(self.replacement, lineinfo.line)
+        lineinfo.data = self.regex.sub(self.replacement, lineinfo.data)
         yield lineinfo
 
 
@@ -96,7 +96,7 @@ class SkipRepeatedBlankLines(TransformBase):
         Yields:
             LineInfo: Lines that are not repeating blank lines.
         """
-        is_blank = not lineinfo.line.strip()  # Check if the current line is blank
+        is_blank = not lineinfo.data.strip()  # Check if the current line is blank
 
         if is_blank:
             # Skip if the last line was also blank

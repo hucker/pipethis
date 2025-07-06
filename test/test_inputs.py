@@ -10,21 +10,21 @@ def test_from_string_basic():
 
     assert len(results) == 4
 
-    assert results[0].line_number == 1
+    assert results[0].sequence_id == 1
     assert results[0].resource_name == "text"
-    assert results[0].line == "Hello"
+    assert results[0].data == "Hello"
 
-    assert results[1].line_number == 2
+    assert results[1].sequence_id == 2
     assert results[1].resource_name == "text"
-    assert results[1].line == "World"
+    assert results[1].data == "World"
 
-    assert results[2].line_number == 3
+    assert results[2].sequence_id == 3
     assert results[2].resource_name == "text"
-    assert results[2].line == "This is a test"
+    assert results[2].data == "This is a test"
 
-    assert results[3].line_number == 4
+    assert results[3].sequence_id == 4
     assert results[3].resource_name == "text"
-    assert results[3].line == "Line 4"
+    assert results[3].data == "Line 4"
 
 def test_from_string_empty_input():
     """Test `FromString` with an empty string."""
@@ -33,8 +33,8 @@ def test_from_string_empty_input():
     results = list(from_string.stream())
 
     assert len(results) == 1
-    assert results[0].line_number == 1
-    assert results[0].line == ""
+    assert results[0].sequence_id == 1
+    assert results[0].data == ""
     assert results[0].resource_name == "text"
 
 
@@ -46,12 +46,12 @@ def test_from_string_custom_separator():
 
     assert len(results) == 3
 
-    assert results[0].line_number == 1
-    assert results[0].line == "Item1"
-    assert results[1].line_number == 2
-    assert results[1].line == "Item2"
-    assert results[2].line_number == 3
-    assert results[2].line == "Item3"
+    assert results[0].sequence_id == 1
+    assert results[0].data == "Item1"
+    assert results[1].sequence_id == 2
+    assert results[1].data == "Item2"
+    assert results[2].sequence_id == 3
+    assert results[2].data == "Item3"
 
 def test_from_string_single_line():
     """Test `FromString` with a single-line input."""
@@ -60,8 +60,8 @@ def test_from_string_single_line():
     results = list(from_string.stream())
 
     assert len(results) == 1
-    assert results[0].line_number == 1
-    assert results[0].line == "This is a single-line test."
+    assert results[0].sequence_id == 1
+    assert results[0].data == "This is a single-line test."
     assert results[0].resource_name == "text"
 
 def test_from_string_trailing_and_leading_separators():
@@ -71,16 +71,16 @@ def test_from_string_trailing_and_leading_separators():
     results = list(from_string.stream())
 
     assert len(results) == 5
-    assert results[0].line_number == 1
-    assert results[0].line == ""  # Leading separator
-    assert results[1].line_number == 2
-    assert results[1].line == "Line1"
-    assert results[2].line_number == 3
-    assert results[2].line == "Line2"
-    assert results[3].line_number == 4
-    assert results[3].line == "Line3"
-    assert results[4].line_number == 5
-    assert results[4].line == ""  # Trailing separator
+    assert results[0].sequence_id == 1
+    assert results[0].data == ""  # Leading separator
+    assert results[1].sequence_id == 2
+    assert results[1].data == "Line1"
+    assert results[2].sequence_id == 3
+    assert results[2].data == "Line2"
+    assert results[3].sequence_id == 4
+    assert results[3].data == "Line3"
+    assert results[4].sequence_id == 5
+    assert results[4].data == ""  # Trailing separator
 
 
 # Pytest fixture to create temporary files for testing
@@ -100,21 +100,21 @@ def test_from_file_basic(sample_file):
 
     assert len(results) == 4  # File has 4 lines
 
-    assert results[0].line_number == 1
+    assert results[0].sequence_id == 1
     assert results[0].resource_name == str(sample_file)
-    assert results[0].line == "Hello"
+    assert results[0].data == "Hello"
 
-    assert results[1].line_number == 2
+    assert results[1].sequence_id == 2
     assert results[1].resource_name == str(sample_file)
-    assert results[1].line == "World"
+    assert results[1].data == "World"
 
-    assert results[2].line_number == 3
+    assert results[2].sequence_id == 3
     assert results[2].resource_name == str(sample_file)
-    assert results[2].line == "This is a test"
+    assert results[2].data == "This is a test"
 
-    assert results[3].line_number == 4
+    assert results[3].sequence_id == 4
     assert results[3].resource_name == str(sample_file)
-    assert results[3].line == "Line 4"
+    assert results[3].data == "Line 4"
 
 
 def test_from_file_empty_file(tmp_path):
@@ -139,14 +139,14 @@ def test_from_file_file_with_trailing_newlines(tmp_path):
 
     assert len(results) == 3  # Two lines with content, one blank line
 
-    assert results[0].line_number == 1
-    assert results[0].line == "Line 1"
+    assert results[0].sequence_id == 1
+    assert results[0].data == "Line 1"
 
-    assert results[1].line_number == 2
-    assert results[1].line == "Line 2"
+    assert results[1].sequence_id == 2
+    assert results[1].data == "Line 2"
 
-    assert results[2].line_number == 3
-    assert results[2].line == ""  # Blank line
+    assert results[2].sequence_id == 3
+    assert results[2].data == ""  # Blank line
 
 
 def test_from_file_unicode_handling(tmp_path):
@@ -160,17 +160,17 @@ def test_from_file_unicode_handling(tmp_path):
 
     assert len(results) == 4
 
-    assert results[0].line_number == 1
-    assert results[0].line == "Héllo"
+    assert results[0].sequence_id == 1
+    assert results[0].data == "Héllo"
 
-    assert results[1].line_number == 2
-    assert results[1].line == "Wörld"
+    assert results[1].sequence_id == 2
+    assert results[1].data == "Wörld"
 
-    assert results[2].line_number == 3
-    assert results[2].line == "你好"
+    assert results[2].sequence_id == 3
+    assert results[2].data == "你好"
 
-    assert results[3].line_number == 4
-    assert results[3].line == "こんにちは"
+    assert results[3].sequence_id == 4
+    assert results[3].data == "こんにちは"
 
 
 # Pytest fixture to create temporary folder and files
@@ -219,7 +219,7 @@ def test_from_folder_all_files(folder_with_files):
         filename = pathlib.Path(line_info.resource_name).name
         assert filename in expected_lines
         # Verify line content matches one of the expected lines for this file
-        assert line_info.line in expected_lines[filename]
+        assert line_info.data in expected_lines[filename]
 
 
 
@@ -245,7 +245,7 @@ def test_from_folder_keep_extensions(folder_with_files):
         filename = pathlib.Path(line_info.resource_name).name
         if filename not in processed_files:
             processed_files[filename] = []
-        processed_files[filename].append(line_info.line)
+        processed_files[filename].append(line_info.data)
 
     # Validate that all expected files and lines were processed
     assert processed_files == expected_lines
@@ -273,7 +273,7 @@ def test_from_folder_ignore_extensions(folder_with_files):
         resource_name = pathlib.Path(line_info.resource_name).name
         if resource_name not in processed_files:
             processed_files[resource_name] = []
-        processed_files[resource_name].append(line_info.line)
+        processed_files[resource_name].append(line_info.data)
 
     # Validate that all expected files and lines were processed (ignoring order)
     assert processed_files == expected_lines
