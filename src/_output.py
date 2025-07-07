@@ -20,7 +20,7 @@ class ToStdOut(OutputBase):
 class ToFile(OutputBase):
     def __init__(self, file_name=None, mode='w', encoding="utf-8"):
         """
-        Initialize the standard output writer.
+        Initialize the file writer.
 
         Args:
             file_name (str, optional): If provided, write output to the file with this name.
@@ -28,7 +28,18 @@ class ToFile(OutputBase):
         """
         super().__init__()
         self.file_name = file_name
-        self.file = open(file_name, mode="w", encoding=encoding)
+        self.mode = mode
+        self.encoding = encoding
+        self.file = None  # File will be opened in context
+
+    def __enter__(self):
+        """Open the file and return the instance."""
+        self.file = open(self.file_name, mode=self.mode, encoding=self.encoding)
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Ensure the file is closed properly on exit."""
+        self.close()
 
     def write(self, lineinfo:LineInfo):
         """
@@ -45,7 +56,9 @@ class ToFile(OutputBase):
         """
         Close the file if writing to a file.
         """
-        self.file.close()
+        if self.file:
+            self.file.close()
+
 
 class ToString(OutputBase):
     def __init__(self):

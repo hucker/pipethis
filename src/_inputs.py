@@ -8,11 +8,29 @@ from _lineinfo import LineInfo
 class FromFile(InputBase):
     def __init__(self, filepath: Path):
         self.filepath = filepath
+        self.file = None  # Initialize the file handle as None
+
+    def __enter__(self):
+        """Open the file when entering the context."""
+        self.file = open(self.filepath, mode="r")
+        return self  # Return the instance to be used within the context
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Ensure the file is closed when exiting the context."""
+        if self.file:
+            self.file.close()
+            self.file = None  # Reset the file handle
 
     def stream(self) -> Iterable[LineInfo]:
-        with open(self.filepath) as file:
-            for line_number, line in enumerate(file, start=1):
+        """Read lines from the file and yield LineInfo objects."""
+        if not self.file:  # Fallback if file is not already open
+            with open(self.filepath) as file:
+                for line_number, line in enumerate(file, start=1):
+                    yield LineInfo(sequence_id=line_number, resource_name=str(self.filepath), data=line.strip())
+        else:  # Use the file handle opened via the context manager
+            for line_number, line in enumerate(self.file, start=1):
                 yield LineInfo(sequence_id=line_number, resource_name=str(self.filepath), data=line.strip())
+
 
 
 class FromFolder:
@@ -45,7 +63,10 @@ class FromFolder:
         """
         for filepath in self.folder_path.iterdir():
             if filepath.is_file() and self._should_include(filepath.suffix):
-                yield from FromFile(filepath).stream()
+                # Use FromFile as a context manager to ensure proper resource management
+                with FromFile(filepath) as from_file:
+                    yield from from_file.stream()
+
 
     def _should_include(self, extension: str) -> bool:
         """
@@ -134,6 +155,22 @@ class FromString(InputBase):
         self.text = text
         self.sep = separator
 
+    def __enter__(self):
+        """
+        Enter the context. No real resource is acquired, but this makes
+        FromString interchangeable with FromFile in context managers.
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Exit the context. Nothing needs to be closed, but this makes
+        FromString compatible with context management.
+        """
+        pass
+
     def stream(self) -> Iterable[LineInfo]:
+        """Stream lines split by the specified separator."""
         for line_number, data in enumerate(self.text.split(self.sep), start=1):
             yield LineInfo(sequence_id=line_number, resource_name=self.name, data=data)
+

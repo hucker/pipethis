@@ -75,6 +75,21 @@ class OutputBase(ABC):
         # Track Bytes Written
         self._size = 0
 
+    def __enter__(self):
+        """
+        Default context manager behavior.
+        Does nothing, as not all outputs need special setup.
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Default context manager behavior.
+        Does nothing, as not all outputs need special cleanup.
+        """
+        pass
+
+
     def update_size(self,text):
         self._size += len(text)
 

@@ -27,8 +27,9 @@ def test_standard_output(capsys, lines):
     output = ToStdOut()
 
     # Write each line to the output
-    for lineinfo in lines:
-        output.write(lineinfo)
+    with output as f:
+        for lineinfo in lines:
+            f.write(lineinfo)
 
     # Capture stdout
     captured = capsys.readouterr()
@@ -64,11 +65,9 @@ def test_file_output(tmp_path, lines):
     output = ToFile(file_name=str(file_path))
 
     # Write each line to the file
-    for lineinfo in lines:
-        output.write(lineinfo)
-
-    # Close the file
-    output.close()
+    with output as f:
+        for lineinfo in lines:
+            f.write(lineinfo)
 
     # Read the file back to validate
     with open(file_path, "r", encoding="utf-8") as f:
@@ -79,7 +78,6 @@ def test_file_output(tmp_path, lines):
 
     # Assert the file content matches the expected output
     assert content == expected_output
-
 
 
 @pytest.mark.parametrize(
