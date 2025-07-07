@@ -18,6 +18,6 @@ class LineInfo(DataInfo):
 
         # Validate `data` specific to `LineInfo`
         if not isinstance(self.data, str):
-            raise ValueError("data must be a string for LineInfo")
+            raise ValueError("Data must be a string for LineInfo")
 
 

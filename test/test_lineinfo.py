@@ -76,24 +76,24 @@ def test_valid_lineinfo(sequence_id, resource_name, line):
 )
 def test_invalid_line_number(sequence_id):
     """Test that invalid sequence_id values raise ValueError."""
-    expected_error = "sequence_id must be a positive integer"  # Shared error message
+    expected_error = "Sequence_id must be a positive integer"  # Shared error message
     with pytest.raises(ValueError, match=expected_error):
         LineInfo(sequence_id=sequence_id, resource_name="test.txt", data="Content")
 
 
 
 @pytest.mark.parametrize(
-    "resource_name, expected_error",
+    "resource_name",
     [
-        ("", "resource_name must be a non-empty string"),  # Empty string
-        ("   ", "resource_name must be a non-empty string"),  # Whitespace-only string
-        (None, "resource_name must be a non-empty string"),  # NoneType
-        (123, "resource_name must be a non-empty string"),  # Non-string type
+        (""),  # Empty string
+        ("   "),  # Whitespace-only string
+        (None),  # NoneType
+        (123),  # Non-string type
     ],
 )
-def test_invalid_resource_name(resource_name, expected_error):
+def test_invalid_resource_name(resource_name):
     """Test that invalid resource_name values raise ValueError."""
-    with pytest.raises(ValueError, match=expected_error):
+    with pytest.raises(ValueError, match= "Resource_name must be a non-empty string"):
         LineInfo(sequence_id=1, resource_name=resource_name, data="Content")
 
 
@@ -108,7 +108,7 @@ def test_invalid_resource_name(resource_name, expected_error):
 )
 def test_invalid_line(line):
     """Test that invalid line values raise ValueError."""
-    expected_error = "data must be a string for LineInfo"  # Error message shared across cases
+    expected_error = "Data must be a string for LineInfo"  # Error message shared across cases
     with pytest.raises(ValueError, match=expected_error):
         LineInfo(sequence_id=1, resource_name="test.txt", data=line)
 

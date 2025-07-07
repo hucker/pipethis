@@ -20,6 +20,7 @@ from ._transform import (
     LowerCase,
     AddMetaData,
     RegexSkipFilter,
+    RegexKeepFilter,
     RegexSubstituteTransform,
     SkipRepeatedBlankLines
 )
@@ -41,8 +42,8 @@ __all__ = [
     # Pipeline
     "Pipeline",
 
-    # Transforms
-    "PassThrough", "UpperCase", "LowerCase",
+    # String Transforms
+    "PassThrough", "UpperCase", "LowerCase","RegexKeepFilter",
     "AddMetaData", "RegexSkipFilter", "RegexSubstituteTransform",
     "SkipRepeatedBlankLines"
 ]

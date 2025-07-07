@@ -11,20 +11,29 @@ class PassThrough(TransformBase):
 
 class UpperCase(TransformBase):
     def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
-        lineinfo.data = lineinfo.data.upper()
-        yield lineinfo
+        yield LineInfo(sequence_id=lineinfo.sequence_id,
+                       resource_name=lineinfo.resource_name,
+                       data=lineinfo.data.upper())
 
 
 class LowerCase(TransformBase):
     def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
-        lineinfo.data = lineinfo.data.lower()
-        yield lineinfo
+
+        yield LineInfo(sequence_id=lineinfo.sequence_id,
+                       resource_name=lineinfo.resource_name,
+                       data=lineinfo.data.lower())
 
 
 class AddMetaData(TransformBase):
     def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
-        lineinfo.data = f"{lineinfo.resource_name}:{lineinfo.sequence_id}:{lineinfo.data}"
-        yield lineinfo
+        # Create a new LineInfo object instead of modifying the original
+        new_data = f"{lineinfo.resource_name}:{lineinfo.sequence_id}:{lineinfo.data}"
+        yield LineInfo(
+            sequence_id=lineinfo.sequence_id,
+            resource_name=lineinfo.resource_name,
+            data=new_data
+        )
+
 
 
 class RegexSkipFilter(TransformBase):
@@ -50,6 +59,28 @@ class RegexSkipFilter(TransformBase):
         if not self.regex.match(lineinfo.data):
             yield lineinfo
 
+class RegexKeepFilter(TransformBase):
+    def __init__(self, pattern: str):
+        """
+        Initializes the RegexKeepFilter with a pattern to match lines against.
+
+        Args:
+            pattern (str): The regular expression pattern to match lines to keep.
+        """
+        self.regex = re.compile(pattern)
+
+    def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
+        """
+        Filters in lines that match the given regular expression pattern.
+
+        Args:
+            lineinfo (LineInfo): The line to test against the regex.
+
+        Yields:
+            LineInfo: Lines that do not match the regex.
+        """
+        if self.regex.match(lineinfo.data):
+            yield lineinfo
 
 class RegexSubstituteTransform(TransformBase):
     def __init__(self, pattern: str, replacement: str):

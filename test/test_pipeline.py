@@ -2,10 +2,9 @@ import pytest
 
 from _inputs import FromString
 from _output import ToString
-from _transform import AddMetaData, UpperCase,PassThrough
+from _transform import AddMetaData, UpperCase,PassThrough,RegexKeepFilter
 from _pipeline import Pipeline
 
-@pytest.mark.pipeline
 def test_pipeline_with_string_io():
     # Arrange: Define input, transformations, output, and the pipeline
     input_data = "first line\nsecond line\nthird line"
@@ -27,7 +26,6 @@ def test_pipeline_with_string_io():
     assert output_to_string.text_output == expected_output
     assert output_to_string.size == 34
 
-@pytest.mark.pipeline
 def test_pipeline_with_meta_string_io():
     # Arrange: Define input, transformations, output, and the pipeline
     input_data = "first line\nsecond line\nthird line"
@@ -39,35 +37,16 @@ def test_pipeline_with_meta_string_io():
     # Create and configure the pipeline
     pipeline = Pipeline()
     pipeline.add_input(input_from_string)
-    pipeline.add_transform(transform_to_upper)
     pipeline.add_transform(add_meta)
+    pipeline.add_transform(transform_to_upper)
     pipeline.add_output(output_to_string)
 
     # Act: Run the pipeline
     pipeline.run()
 
     # Assert: Validate that the output matches expectations
-    expected_output = "text:1first line\ntext:2second line\text:3third_line\n"
+    expected_output = "TEXT:1:FIRST LINE\nTEXT:2:SECOND LINE\nTEXT:3:THIRD LINE\n"
     assert output_to_string.text_output == expected_output
-
-
-# Unit Tests
-def test_pipeline_operator_overloading():
-    # Create pipeline
-    pipeline = Pipeline()
-
-    # Create instances of the components
-    from_string = FromString(text="foo")
-    pass_through = PassThrough()
-    to_string = ToString()
-
-    # Build the pipeline
-    pipeline = pipeline | from_string | pass_through | to_string
-
-    # Verify the pipeline structure
-    assert pipeline.inputs == [from_string], "Input not added correctly to the pipeline"
-    assert pipeline.transforms == [pass_through], "Transform not added correctly to the pipeline"
-    assert pipeline.outputs == [to_string], "Output not added correctly to the pipeline"
 
 
 # Unit Tests
@@ -171,3 +150,146 @@ def test_pipeline_ior_operator():
     # result is in the text_output property of the to_string object.
     assert to_string.text_output == "foo\n"
     assert to_string.size == 4
+
+def test_pipeline_with_error_filter():
+    """
+    Test a pipeline that filters to keep only lines containing 'ERROR'.
+    Verifies that the filter correctly processes the input stream.
+    """
+    # Input data with a mix of error and non-error lines
+    input_data = """This is a normal log line
+This line has an ERROR message
+Another normal informational line
+CRITICAL ERROR: system failure
+Just a debug message
+ERROR: could not connect to database"""
+
+    # Set up pipeline components
+    input_handler = FromString(input_data)
+    output_handler = ToString()
+    error_filter = RegexKeepFilter(r".*ERROR.*")
+
+    # Create and run the pipeline
+    pipeline = Pipeline()
+    pipeline.add_input(input_handler)
+    pipeline.add_transform(error_filter)
+    pipeline.add_output(output_handler)
+    pipeline.run()
+
+    # Get the filtered output
+    result = output_handler.text_output
+
+    # Split the result into lines for easier verification
+    result_lines = result.strip().split('\n')
+
+    # Verify only ERROR lines were kept
+    assert len(result_lines) == 3
+    assert "This line has an ERROR message" in result_lines
+    assert "CRITICAL ERROR: system failure" in result_lines
+    assert "ERROR: could not connect to database" in result_lines
+
+    # Verify non-error lines were filtered out
+    assert "This is a normal log line" not in result_lines
+    assert "Another normal informational line" not in result_lines
+    assert "Just a debug message" not in result_lines
+
+
+def test_pipeline_construction_methods_comparison():
+    """
+    Test that both pipeline construction methods (manual and pipe operator)
+    produce identical results when filtering for ERROR lines.
+    """
+    # Input data with a mix of error and non-error lines
+    input_data = """This is a normal log line
+This line has an ERROR message
+Another normal informational line
+CRITICAL ERROR: system failure
+Just a debug message
+ERROR: could not connect to database"""
+
+    # Set up pipeline components for manual construction
+    input_handler1 = FromString(input_data)
+    output_handler1 = ToString()
+    error_filter1 = RegexKeepFilter(r".*ERROR.*")
+
+    # Create and run the manual pipeline
+    manual_pipeline = Pipeline()
+    manual_pipeline.add_input(input_handler1)
+    manual_pipeline.add_transform(error_filter1)
+    manual_pipeline.add_output(output_handler1)
+    manual_pipeline.run()
+
+    # Set up components for pipe operator construction
+    pipe_pipeline = Pipeline()
+    input_handler2 = FromString(input_data)
+    output_handler2 = ToString()
+    error_filter2 = RegexKeepFilter(r".*ERROR.*")
+
+    # Create and run the pipeline using pipe operators
+    pipe_pipeline = pipe_pipeline | input_handler2 | error_filter2 | output_handler2
+    pipe_pipeline.run()
+
+    # Get results from both pipelines
+    manual_result = output_handler1.text_output
+    pipe_result = output_handler2.text_output
+
+    # Verify both pipelines produced identical results
+    assert manual_result == pipe_result
+
+    # Verify the filtering worked correctly in both cases
+    result_lines = manual_result.strip().split('\n')
+    assert len(result_lines) == 3
+    assert "This line has an ERROR message" in result_lines
+    assert "CRITICAL ERROR: system failure" in result_lines
+    assert "ERROR: could not connect to database" in result_lines
+
+def test_multi_transform_pipeline_construction_comparison():
+    """
+    Test that both pipeline construction methods produce identical results
+    with multiple transforms (filtering for ERROR lines containing 'database').
+    """
+    # Input data with various error types
+    input_data = """ERROR: network timeout
+WARNING: disk space low
+ERROR: could not connect to database
+ERROR: invalid user credentials
+System running normally
+ERROR: database query failed"""
+
+    # Set up pipeline components for manual construction
+    input_handler1 = FromString(input_data)
+    output_handler1 = ToString()
+    error_filter1 = RegexKeepFilter(r".*ERROR.*")
+    database_filter1 = RegexKeepFilter(r".*database.*")
+
+    # Create and run the manual pipeline
+    manual_pipeline = Pipeline()
+    manual_pipeline.add_input(input_handler1)
+    manual_pipeline.add_transform(error_filter1)
+    manual_pipeline.add_transform(database_filter1)
+    manual_pipeline.add_output(output_handler1)
+    manual_pipeline.run()
+
+    # Set up components for pipe operator construction
+    input_handler2 = FromString(input_data)
+    output_handler2 = ToString()
+    error_filter2 = RegexKeepFilter(r".*ERROR.*")
+    database_filter2 = RegexKeepFilter(r".*database.*")
+
+    # Create and run the pipeline using pipe operators
+    pipe_pipeline = Pipeline()
+    pipe_pipeline = pipe_pipeline | input_handler2 | error_filter2 | database_filter2 | output_handler2
+    pipe_pipeline.run()
+
+    # Get results from both pipelines
+    manual_result = output_handler1.text_output
+    pipe_result = output_handler2.text_output
+
+    # Verify both pipelines produced identical results
+    assert manual_result == pipe_result
+
+    # Verify the filtering worked correctly
+    result_lines = manual_result.strip().split('\n')
+    assert len(result_lines) == 2
+    assert "ERROR: could not connect to database" in result_lines
+    assert "ERROR: database query failed" in result_lines

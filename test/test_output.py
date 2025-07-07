@@ -1,8 +1,8 @@
 
-
 import pytest
 import os
-
+from _lineinfo import LineInfo
+from _transform import RegexKeepFilter, RegexSkipFilter, RegexSubstituteTransform
 from _lineinfo import LineInfo
 from _output import ToStdOut, ToFile,ToString
 
@@ -81,10 +81,6 @@ def test_file_output(tmp_path, lines):
     assert content == expected_output
 
 
-import pytest
-from _lineinfo import LineInfo
-from _transform import RegexSkipFilter, RegexSubstituteTransform
-
 
 @pytest.mark.parametrize(
     "pattern, lineinfo, is_yielded",
@@ -111,6 +107,32 @@ def test_regex_skip_filter(pattern, lineinfo, is_yielded):
         # If the line should be skipped, ensure it's not in the output
         assert len(transformed) == 0
 
+@pytest.mark.parametrize(
+    "pattern, lineinfo, is_yielded",
+    [
+        # Lines that match the pattern should be yielded
+        (r"keep.*", LineInfo(sequence_id=1, resource_name="ResourceA", data="keep this line"), True),
+        (r"keep.*", LineInfo(sequence_id=2, resource_name="ResourceB", data="don't keep this"), False),
+        (r"^\d+$", LineInfo(sequence_id=3, resource_name="ResourceC", data="12345"), True),  # Only digits
+        (r"^\d+$", LineInfo(sequence_id=4, resource_name="ResourceD", data="abc123"), False),  # Contains non-digits
+        (r".*error.*", LineInfo(sequence_id=5, resource_name="ResourceE", data="found an error here"), True),
+        (r".*error.*", LineInfo(sequence_id=6, resource_name="ResourceF", data="successful operation"), False),
+    ],
+)
+def test_regex_keep_filter(pattern, lineinfo, is_yielded):
+    """
+    Test the RegexKeepFilter to verify that only lines matching the pattern are kept.
+    """
+    transform = RegexKeepFilter(pattern)
+    transformed = list(transform.transform(lineinfo))
+
+    if is_yielded:
+        # If the line should be yielded, ensure it's in the output
+        assert len(transformed) == 1
+        assert transformed[0] == lineinfo
+    else:
+        # If the line should be filtered out, ensure it's not in the output
+        assert len(transformed) == 0
 
 @pytest.mark.parametrize(
     "pattern, replacement, lineinfo, expected_line",

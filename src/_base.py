@@ -24,17 +24,22 @@ class DataInfo(ABC):
     """
 
     sequence_id: int     # Line number, page number, frame number
-    resource_name: str   # Typically a file name
+    resource_name: str   # Typically a file name but can be anything useful to end user.
     data: Any            # Data flowing in pipeline
 
     def __post_init__(self):
-        # Validate `sequence_id` (must be a positive integer)
-        if not isinstance(self.sequence_id, int) or self.sequence_id <= 0:
-            raise ValueError("sequence_id must be a positive integer")
+
+        # Avoid confusion and don't allow bad whitespace.
+        if isinstance(self.resource_name,str):
+            self.resource_name = self.resource_name.strip()
 
         # Validate `resource_name` (must be a non-empty string)
-        if not isinstance(self.resource_name, str) or not self.resource_name.strip():
-            raise ValueError("resource_name must be a non-empty string")
+        if not isinstance(self.resource_name, str) or not self.resource_name:
+            raise ValueError("Resource_name must be a non-empty string")
+
+        # Validate `sequence_id` (must be a positive integer)
+        if not isinstance(self.sequence_id, int) or self.sequence_id <= 0:
+            raise ValueError("Sequence_id must be a positive integer")
 
         # Abstract validation for subclasses
         self.validate()

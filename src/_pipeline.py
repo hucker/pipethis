@@ -36,18 +36,12 @@ class Pipeline:
     def __ior__(self, other):
         return self.__or__(other)  # |= is the same as |
 
-
     def run(self):
         # Stream from inputs
         stream = (lineinfo for input_ in self.inputs for lineinfo in input_.stream())
 
-        # Apply all transforms in sequence
-        for transform in self.transforms:
-            stream = (
-                transformed_lineinfo
-                for lineinfo in stream
-                for transformed_lineinfo in transform.transform(lineinfo)
-            )
+        # Apply all transforms in sequence using a generator function
+        stream = self._apply_transforms_in_sequence(stream)
 
         # Write to outputs
         for lineinfo in stream:
@@ -61,3 +55,20 @@ class Pipeline:
             except IOError as ioex:
                 print(f"IOError: {ioex} in pipeline output for output: {type(output).__name__}")
                 pass
+
+    def _apply_transforms_in_sequence(self, input_stream):
+        """
+        Apply all transforms in sequence to the input stream.
+        This maintains the generator pattern without materializing a list.
+        """
+        stream = input_stream
+        for transform in self.transforms:
+            stream = self._apply_single_transform(stream, transform)
+        return stream
+
+    def _apply_single_transform(self, input_stream, transform):
+        """
+        Apply a single transform to all items in the input stream.
+        """
+        for lineinfo in input_stream:
+            yield from transform.transform(lineinfo)
