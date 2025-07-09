@@ -1,14 +1,14 @@
 import pytest
 
-from _lineinfo import LineInfo
+from _streamitem import LineStreamItem
 from _transform import SkipRepeatedBlankLines, UpperCase, LowerCase, AddMetaData,PassThrough
 
 @pytest.mark.parametrize(
     "lineinfo, expected_line",
     [
-        (LineInfo(sequence_id=1, resource_name="ResourceA", data="hello world"), "HELLO WORLD"),
-        (LineInfo(sequence_id=2, resource_name="ResourceB", data="PyTest"), "PYTEST"),
-        (LineInfo(sequence_id=3, resource_name="ResourceC", data=""), ""),  # Empty line remains unchanged
+        (LineStreamItem(sequence_id=1, resource_name="ResourceA", data="hello world"), "HELLO WORLD"),
+        (LineStreamItem(sequence_id=2, resource_name="ResourceB", data="PyTest"), "PYTEST"),
+        (LineStreamItem(sequence_id=3, resource_name="ResourceC", data=""), ""),  # Empty line remains unchanged
     ],
 )
 def test_uppercase_transform(lineinfo, expected_line):
@@ -17,15 +17,15 @@ def test_uppercase_transform(lineinfo, expected_line):
     """
     transform = UpperCase()
     transformed = list(transform.transform(lineinfo))  # Transform the line
-    assert len(transformed) == 1  # Ensure only one LineInfo is yielded
+    assert len(transformed) == 1  # Ensure only one LineStreamItem is yielded
     assert transformed[0].data == expected_line  # Ensure the line is uppercase
 
 @pytest.mark.parametrize(
     "lineinfo, expected_line",
     [
-        (LineInfo(sequence_id=1, resource_name="ResourceA", data="HELLO WORLD"), "hello world"),
-        (LineInfo(sequence_id=2, resource_name="ResourceB", data="PyTEST"), "pytest"),
-        (LineInfo(sequence_id=3, resource_name="ResourceC", data=""), ""),  # Empty line remains unchanged
+        (LineStreamItem(sequence_id=1, resource_name="ResourceA", data="HELLO WORLD"), "hello world"),
+        (LineStreamItem(sequence_id=2, resource_name="ResourceB", data="PyTEST"), "pytest"),
+        (LineStreamItem(sequence_id=3, resource_name="ResourceC", data=""), ""),  # Empty line remains unchanged
     ],
 )
 def test_lowercase_transform(lineinfo, expected_line):
@@ -34,15 +34,15 @@ def test_lowercase_transform(lineinfo, expected_line):
     """
     transform = LowerCase()
     transformed = list(transform.transform(lineinfo))  # Transform the line
-    assert len(transformed) == 1  # Ensure only one LineInfo is yielded
+    assert len(transformed) == 1  # Ensure only one LineStreamItem is yielded
     assert transformed[0].data == expected_line  # Ensure the line is lowercase
 
 @pytest.mark.parametrize(
     "lineinfo, expected_line",
     [
-        (LineInfo(sequence_id=1, resource_name="ResourceA", data="hello world"), "ResourceA:1:hello world"),
-        (LineInfo(sequence_id=2, resource_name="ResourceB", data="PyTest"), "ResourceB:2:PyTest"),
-        (LineInfo(sequence_id=3, resource_name="ResourceC", data=""), "ResourceC:3:"),
+        (LineStreamItem(sequence_id=1, resource_name="ResourceA", data="hello world"), "ResourceA:1:hello world"),
+        (LineStreamItem(sequence_id=2, resource_name="ResourceB", data="PyTest"), "ResourceB:2:PyTest"),
+        (LineStreamItem(sequence_id=3, resource_name="ResourceC", data=""), "ResourceC:3:"),
     ],
 )
 def test_add_metadata_transform(lineinfo, expected_line):
@@ -51,7 +51,7 @@ def test_add_metadata_transform(lineinfo, expected_line):
     """
     transform = AddMetaData()
     transformed = list(transform.transform(lineinfo))  # Transform the line
-    assert len(transformed) == 1  # Ensure only one LineInfo is yielded
+    assert len(transformed) == 1  # Ensure only one LineStreamItem is yielded
     assert transformed[0].data == expected_line  # Ensure metadata is correctly added
 
 @pytest.mark.parametrize(
@@ -60,75 +60,75 @@ def test_add_metadata_transform(lineinfo, expected_line):
         # Case 1: No blank lines
         (
                 [
-                    LineInfo(sequence_id=1, resource_name="ResourceA", data="First line"),
-                    LineInfo(sequence_id=2, resource_name="ResourceA", data="Second line"),
-                    LineInfo(sequence_id=3, resource_name="ResourceA", data="Third line"),
+                    LineStreamItem(sequence_id=1, resource_name="ResourceA", data="First line"),
+                    LineStreamItem(sequence_id=2, resource_name="ResourceA", data="Second line"),
+                    LineStreamItem(sequence_id=3, resource_name="ResourceA", data="Third line"),
                 ],
                 [
-                    LineInfo(sequence_id=1, resource_name="ResourceA", data="First line"),
-                    LineInfo(sequence_id=2, resource_name="ResourceA", data="Second line"),
-                    LineInfo(sequence_id=3, resource_name="ResourceA", data="Third line"),
+                    LineStreamItem(sequence_id=1, resource_name="ResourceA", data="First line"),
+                    LineStreamItem(sequence_id=2, resource_name="ResourceA", data="Second line"),
+                    LineStreamItem(sequence_id=3, resource_name="ResourceA", data="Third line"),
                 ],
         ),
         # Case 2: Blank lines at start
         (
                 [
-                    LineInfo(sequence_id=1, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=2, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=3, resource_name="ResourceA", data="First line"),
-                    LineInfo(sequence_id=4, resource_name="ResourceA", data="Second line"),
+                    LineStreamItem(sequence_id=1, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=2, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=3, resource_name="ResourceA", data="First line"),
+                    LineStreamItem(sequence_id=4, resource_name="ResourceA", data="Second line"),
                 ],
                 [
-                    LineInfo(sequence_id=1, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=3, resource_name="ResourceA", data="First line"),
-                    LineInfo(sequence_id=4, resource_name="ResourceA", data="Second line"),
+                    LineStreamItem(sequence_id=1, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=3, resource_name="ResourceA", data="First line"),
+                    LineStreamItem(sequence_id=4, resource_name="ResourceA", data="Second line"),
                 ],
         ),
         # Case 3: Blank lines in the middle
         (
                 [
-                    LineInfo(sequence_id=1, resource_name="ResourceA", data="First line"),
-                    LineInfo(sequence_id=2, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=3, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=4, resource_name="ResourceA", data="Second line"),
+                    LineStreamItem(sequence_id=1, resource_name="ResourceA", data="First line"),
+                    LineStreamItem(sequence_id=2, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=3, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=4, resource_name="ResourceA", data="Second line"),
                 ],
                 [
-                    LineInfo(sequence_id=1, resource_name="ResourceA", data="First line"),
-                    LineInfo(sequence_id=2, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=4, resource_name="ResourceA", data="Second line"),
+                    LineStreamItem(sequence_id=1, resource_name="ResourceA", data="First line"),
+                    LineStreamItem(sequence_id=2, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=4, resource_name="ResourceA", data="Second line"),
                 ],
         ),
         # Case 4: Blank lines at the end
         (
                 [
-                    LineInfo(sequence_id=1, resource_name="ResourceA", data="First line"),
-                    LineInfo(sequence_id=2, resource_name="ResourceA", data="Second line"),
-                    LineInfo(sequence_id=3, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=4, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=1, resource_name="ResourceA", data="First line"),
+                    LineStreamItem(sequence_id=2, resource_name="ResourceA", data="Second line"),
+                    LineStreamItem(sequence_id=3, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=4, resource_name="ResourceA", data=""),
                 ],
                 [
-                    LineInfo(sequence_id=1, resource_name="ResourceA", data="First line"),
-                    LineInfo(sequence_id=2, resource_name="ResourceA", data="Second line"),
-                    LineInfo(sequence_id=3, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=1, resource_name="ResourceA", data="First line"),
+                    LineStreamItem(sequence_id=2, resource_name="ResourceA", data="Second line"),
+                    LineStreamItem(sequence_id=3, resource_name="ResourceA", data=""),
                 ],
         ),
         # Case 5: Blank lines scattered across
         (
                 [
-                    LineInfo(sequence_id=1, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=2, resource_name="ResourceA", data="First line"),
-                    LineInfo(sequence_id=3, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=4, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=5, resource_name="ResourceA", data="Second line"),
-                    LineInfo(sequence_id=6, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=7, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=1, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=2, resource_name="ResourceA", data="First line"),
+                    LineStreamItem(sequence_id=3, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=4, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=5, resource_name="ResourceA", data="Second line"),
+                    LineStreamItem(sequence_id=6, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=7, resource_name="ResourceA", data=""),
                 ],
                 [
-                    LineInfo(sequence_id=1, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=2, resource_name="ResourceA", data="First line"),
-                    LineInfo(sequence_id=3, resource_name="ResourceA", data=""),
-                    LineInfo(sequence_id=5, resource_name="ResourceA", data="Second line"),
-                    LineInfo(sequence_id=6, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=1, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=2, resource_name="ResourceA", data="First line"),
+                    LineStreamItem(sequence_id=3, resource_name="ResourceA", data=""),
+                    LineStreamItem(sequence_id=5, resource_name="ResourceA", data="Second line"),
+                    LineStreamItem(sequence_id=6, resource_name="ResourceA", data=""),
                 ],
         ),
     ],
@@ -151,10 +151,10 @@ def test_skip_repeated_blank_lines(input_lines, expected_output_lines):
         assert transformed_line.resource_name == expected_line.resource_name
 
 def test_pass_through_single():
-    """Test the PassThrough transform with a single LineInfo input."""
+    """Test the PassThrough transform with a single LineStreamItem input."""
     # Arrange
     transform = PassThrough()
-    lineinfo = LineInfo(sequence_id=1, resource_name="test.txt", data="Hello, World!")
+    lineinfo = LineStreamItem(sequence_id=1, resource_name="test.txt", data="Hello, World!")
 
     # Act
     result = list(transform.transform(lineinfo))
@@ -168,13 +168,13 @@ def test_pass_through_single():
     assert result[0].resource_name == "test.txt"
 
 def test_pass_through_multiple():
-    """Test the PassThrough transform with multiple LineInfo inputs."""
+    """Test the PassThrough transform with multiple LineStreamItem inputs."""
     # Arrange
     transform = PassThrough()
     lineinfo_list = [
-        LineInfo(sequence_id=1, resource_name="file1.txt", data="Line 1"),
-        LineInfo(sequence_id=2, resource_name="file1.txt", data="Line 2"),
-        LineInfo(sequence_id=3, resource_name="file2.txt", data="Line A"),
+        LineStreamItem(sequence_id=1, resource_name="file1.txt", data="Line 1"),
+        LineStreamItem(sequence_id=2, resource_name="file1.txt", data="Line 2"),
+        LineStreamItem(sequence_id=3, resource_name="file2.txt", data="Line A"),
     ]
 
     # Act

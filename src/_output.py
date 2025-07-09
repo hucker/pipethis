@@ -1,21 +1,40 @@
 from _base import OutputBase
-from _lineinfo import LineInfo
+from _streamitem import LineStreamItem
 
 
 class ToStdOut(OutputBase):
 
-    def write(self, lineinfo:LineInfo):
+    def write(self, lineinfo:LineStreamItem):
         """
         Write the output of a LineInfo object to either stdout or a file.
 
         Args:
-            lineinfo (LineInfo): The LineInfo object to write.
+            lineinfo (LineStreamItem): The LineInfo object to write.
         """
         super().__init__()
         msg = lineinfo.data
         self.update_size(msg)
         print(lineinfo.data)
 
+    def __enter__(self):
+        """
+        Enter the runtime context. Typically used to perform setup operations.
+        """
+        # Clear text_output to ensure a fresh start in a context
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Exit the runtime context. Typically used to perform cleanup operations.
+
+        Args:
+            exc_type (type): Exception type, if an exception occurred.
+            exc_value (Exception): Exception instance, if an exception occurred.
+            traceback (Traceback): Traceback object for the exception.
+        """
+        # For the purpose of a context manager, there's usually no cleanup needed here.
+        # But if there were, you could perform it now.
+        pass
 
 class ToFile(OutputBase):
     def __init__(self, file_name=None, mode='w', encoding="utf-8"):
@@ -41,12 +60,12 @@ class ToFile(OutputBase):
         """Ensure the file is closed properly on exit."""
         self.close()
 
-    def write(self, lineinfo:LineInfo):
+    def write(self, lineinfo:LineStreamItem):
         """
         Write the output of a LineInfo object to either stdout or a file.
 
         Args:
-            lineinfo (LineInfo): The LineInfo object to write.
+            lineinfo (LineStreamItem): The LineInfo object to write.
         """
         msg = lineinfo.data + "\n"
         self.file.write(msg)
@@ -61,17 +80,40 @@ class ToFile(OutputBase):
 
 
 class ToString(OutputBase):
+
     def __init__(self):
         super().__init__()
         self.text_output = ""  # This will store the concatenated string
 
-    def write(self, lineinfo:LineInfo):
+
+    def write(self, lineinfo: LineStreamItem):
         """
         Write the output of a LineInfo object to a string.
 
         Args:
-            lineinfo (LineInfo): The LineInfo object to write.
+            lineinfo (LineStreamItem): The LineInfo object to write.
         """
         msg = lineinfo.data + '\n'
         self.update_size(msg)
         self.text_output += str(msg)
+
+    def __enter__(self):
+        """
+        Enter the runtime context. Typically used to perform setup operations.
+        """
+        # Clear text_output to ensure a fresh start in a context
+        self.text_output = ""
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Exit the runtime context. Typically used to perform cleanup operations.
+
+        Args:
+            exc_type (type): Exception type, if an exception occurred.
+            exc_value (Exception): Exception instance, if an exception occurred.
+            traceback (Traceback): Traceback object for the exception.
+        """
+        # For the purpose of a context manager, there's usually no cleanup needed here.
+        # But if there were, you could perform it now.
+        pass

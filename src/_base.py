@@ -4,7 +4,7 @@ import dataclasses
 
 
 @dataclasses.dataclass
-class DataInfo(ABC):
+class StreamItem(ABC):
     """
     A base class representing streaming data information in a generalized form.
 
@@ -54,7 +54,7 @@ class InputBase(ABC):
     """Base class for all input components."""
 
     @abstractmethod
-    def stream(self) -> Iterable[DataInfo]:
+    def stream(self) -> Iterable[StreamItem]:
         pass # pragma: no cover
 
 
@@ -63,7 +63,7 @@ class TransformBase(ABC):
     """Base class for all transformation components."""
 
     @abstractmethod
-    def transform(self, lineinfo: DataInfo) -> Iterable[DataInfo]:
+    def transform(self, item: StreamItem) -> Iterable[StreamItem]:
         pass # pragma: no cover
 
 
@@ -80,14 +80,14 @@ class OutputBase(ABC):
         Default context manager behavior.
         Does nothing, as not all outputs need special setup.
         """
-        return self
+        return self # pragma: no cover
 
     def __exit__(self, exc_type, exc_value, traceback):
         """
         Default context manager behavior.
         Does nothing, as not all outputs need special cleanup.
         """
-        pass
+        pass # pragma: no cover
 
 
     def update_size(self,text):
@@ -99,7 +99,7 @@ class OutputBase(ABC):
         return self._size
 
     @abstractmethod
-    def write(self, lineinfo: DataInfo):
+    def write(self, lineinfo: StreamItem):
         pass # pragma: no cover
 
     def close(self):

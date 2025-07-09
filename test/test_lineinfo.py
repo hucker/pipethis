@@ -1,10 +1,10 @@
 import pytest
-from _lineinfo import LineInfo
+from _streamitem import LineStreamItem
 
 
-def test_lineinfo_initialization():
-    """Test that LineInfo initializes correctly with provided values."""
-    lineinfo = LineInfo(sequence_id=1, resource_name="test.txt", data="Hello, World!")
+def test_streamitem_initialization():
+    """Test that LineStreamItem initializes correctly with provided values."""
+    lineinfo = LineStreamItem(sequence_id=1, resource_name="test.txt", data="Hello, World!")
 
     assert lineinfo.sequence_id == 1
     assert lineinfo.resource_name == "test.txt"
@@ -12,33 +12,33 @@ def test_lineinfo_initialization():
 
 
 def test_lineinfo_equality_same_values():
-    """Test that two LineInfo objects with the same values are equal."""
-    line1 = LineInfo(sequence_id=1, resource_name="test.txt", data="Hello, World!")
-    line2 = LineInfo(sequence_id=1, resource_name="test.txt", data="Hello, World!")
+    """Test that two LineStreamItem objects with the same values are equal."""
+    line1 = LineStreamItem(sequence_id=1, resource_name="test.txt", data="Hello, World!")
+    line2 = LineStreamItem(sequence_id=1, resource_name="test.txt", data="Hello, World!")
 
     assert line1 == line2
 
 
 def test_lineinfo_equality_different_values():
-    """Test that two LineInfo objects with different values are not equal."""
-    line1 = LineInfo(sequence_id=1, resource_name="test.txt", data="Hello, World!")
-    line2 = LineInfo(sequence_id=2, resource_name="test.txt", data="Goodbye, World!")
+    """Test that two LineStreamItem objects with different values are not equal."""
+    line1 = LineStreamItem(sequence_id=1, resource_name="test.txt", data="Hello, World!")
+    line2 = LineStreamItem(sequence_id=2, resource_name="test.txt", data="Goodbye, World!")
 
     assert line1 != line2
 
 
 def test_lineinfo_equality_with_different_object_type():
-    """Test that LineInfo is not equal to objects of a different type."""
-    lineinfo = LineInfo(sequence_id=1, resource_name="test.txt", data="Hello, World!")
+    """Test that LineStreamItem is not equal to objects of a different type."""
+    lineinfo = LineStreamItem(sequence_id=1, resource_name="test.txt", data="Hello, World!")
     other_object = {"sequence_id": 1, "resource_name": "test.txt", "line": "Hello, World!"}
 
     assert lineinfo != other_object
 
 
 def test_lineinfo_representation():
-    """Test the string representation (__repr__) of LineInfo."""
-    lineinfo = LineInfo(sequence_id=1, resource_name="test.txt", data="Hello, World!")
-    expected_repr = "LineInfo(sequence_id=1, resource_name='test.txt', data='Hello, World!')"
+    """Test the string representation (__repr__) of LineStreamItem."""
+    lineinfo = LineStreamItem(sequence_id=1, resource_name="test.txt", data="Hello, World!")
+    expected_repr = "LineStreamItem(sequence_id=1, resource_name='test.txt', data='Hello, World!')"
 
     assert repr(lineinfo) == expected_repr
 
@@ -46,7 +46,7 @@ def test_lineinfo_representation():
 def test_lineinfo_line_number_validation():
     """Optional: Test that invalid line numbers raise an error."""
     with pytest.raises(ValueError):
-        LineInfo(sequence_id=-1, resource_name="test.txt", data="Invalid line")
+        LineStreamItem(sequence_id=-1, resource_name="test.txt", data="Invalid line")
 
 
 @pytest.mark.parametrize(
@@ -58,8 +58,8 @@ def test_lineinfo_line_number_validation():
     ],
 )
 def test_valid_lineinfo(sequence_id, resource_name, line):
-    """Test that valid LineInfo objects can be created."""
-    lineinfo = LineInfo(sequence_id=sequence_id, resource_name=resource_name, data=line)
+    """Test that valid LineStreamItem objects can be created."""
+    lineinfo = LineStreamItem(sequence_id=sequence_id, resource_name=resource_name, data=line)
     assert lineinfo.sequence_id == sequence_id
     assert lineinfo.resource_name == resource_name
     assert lineinfo.data == line
@@ -78,7 +78,7 @@ def test_invalid_line_number(sequence_id):
     """Test that invalid sequence_id values raise ValueError."""
     expected_error = "Sequence_id must be a positive integer"  # Shared error message
     with pytest.raises(ValueError, match=expected_error):
-        LineInfo(sequence_id=sequence_id, resource_name="test.txt", data="Content")
+        LineStreamItem(sequence_id=sequence_id, resource_name="test.txt", data="Content")
 
 
 
@@ -94,7 +94,7 @@ def test_invalid_line_number(sequence_id):
 def test_invalid_resource_name(resource_name):
     """Test that invalid resource_name values raise ValueError."""
     with pytest.raises(ValueError, match= "Resource_name must be a non-empty string"):
-        LineInfo(sequence_id=1, resource_name=resource_name, data="Content")
+        LineStreamItem(sequence_id=1, resource_name=resource_name, data="Content")
 
 
 
@@ -108,8 +108,8 @@ def test_invalid_resource_name(resource_name):
 )
 def test_invalid_line(line):
     """Test that invalid line values raise ValueError."""
-    expected_error = "Data must be a string for LineInfo"  # Error message shared across cases
+    expected_error = "Data must be a string for LineStreamItem"  # Error message shared across cases
     with pytest.raises(ValueError, match=expected_error):
-        LineInfo(sequence_id=1, resource_name="test.txt", data=line)
+        LineStreamItem(sequence_id=1, resource_name="test.txt", data=line)
 
 

@@ -1,11 +1,11 @@
 # Exporting base classes
-from ._base import DataInfo, InputBase, TransformBase, OutputBase
+from ._base import StreamItem, InputBase, TransformBase, OutputBase
 
 # Exporting input components
 from ._inputs import FromFile, FromFolder, FromRGlob, FromString
 
 # Exporting line data representation
-from ._lineinfo import LineInfo
+from ._streamitem import LineStreamItem
 
 # Exporting output components
 from ._output import ToStdOut, ToFile, ToString
@@ -28,13 +28,13 @@ from ._transform import (
 # Define the public API of the package
 __all__ = [
     # Base classes
-    "DataInfo", "InputBase", "TransformBase", "OutputBase",
+    "StreamItem", "InputBase", "TransformBase", "OutputBase",
 
     # Inputs
     "FromFile", "FromFolder", "FromRGlob", "FromString",
 
     # Line data representation
-    "LineInfo",
+    "LineStreamItem",
 
     # Outputs
     "ToStdOut", "ToFile", "ToString",

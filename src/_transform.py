@@ -2,33 +2,33 @@ import re
 from typing import Iterable
 
 from _base import TransformBase
-from _lineinfo import LineInfo
+from _streamitem import LineStreamItem
 
 
 class PassThrough(TransformBase):
-    def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
+    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
         yield lineinfo
 
 class UpperCase(TransformBase):
-    def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
-        yield LineInfo(sequence_id=lineinfo.sequence_id,
-                       resource_name=lineinfo.resource_name,
-                       data=lineinfo.data.upper())
+    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
+        yield LineStreamItem(sequence_id=lineinfo.sequence_id,
+                             resource_name=lineinfo.resource_name,
+                             data=lineinfo.data.upper())
 
 
 class LowerCase(TransformBase):
-    def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
+    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
 
-        yield LineInfo(sequence_id=lineinfo.sequence_id,
-                       resource_name=lineinfo.resource_name,
-                       data=lineinfo.data.lower())
+        yield LineStreamItem(sequence_id=lineinfo.sequence_id,
+                             resource_name=lineinfo.resource_name,
+                             data=lineinfo.data.lower())
 
 
 class AddMetaData(TransformBase):
-    def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
-        # Create a new LineInfo object instead of modifying the original
+    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
+        # Create a new LineStreamItem object instead of modifying the original
         new_data = f"{lineinfo.resource_name}:{lineinfo.sequence_id}:{lineinfo.data}"
-        yield LineInfo(
+        yield LineStreamItem(
             sequence_id=lineinfo.sequence_id,
             resource_name=lineinfo.resource_name,
             data=new_data
@@ -46,15 +46,15 @@ class RegexSkipFilter(TransformBase):
         """
         self.regex = re.compile(pattern)
 
-    def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
+    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
         """
         Filters out lines that match the given regular expression pattern.
 
         Args:
-            lineinfo (LineInfo): The line to test against the regex.
+            lineinfo (LineStreamItem): The line to test against the regex.
 
         Yields:
-            LineInfo: Lines that do not match the regex.
+            LineStreamItem: Lines that do not match the regex.
         """
         if not self.regex.match(lineinfo.data):
             yield lineinfo
@@ -69,15 +69,15 @@ class RegexKeepFilter(TransformBase):
         """
         self.regex = re.compile(pattern)
 
-    def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
+    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
         """
         Filters in lines that match the given regular expression pattern.
 
         Args:
-            lineinfo (LineInfo): The line to test against the regex.
+            lineinfo (LineStreamItem): The line to test against the regex.
 
         Yields:
-            LineInfo: Lines that do not match the regex.
+            LineStreamItem: Lines that do not match the regex.
         """
         if self.regex.match(lineinfo.data):
             yield lineinfo
@@ -94,15 +94,15 @@ class RegexSubstituteTransform(TransformBase):
         self.regex = re.compile(pattern)
         self.replacement = replacement
 
-    def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
+    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
         """
         Performs a regex substitution on the line content.
 
         Args:
-            lineinfo (LineInfo): The line to process for substitution.
+            lineinfo (LineStreamItem): The line to process for substitution.
 
         Yields:
-            LineInfo: Lines with substituted content (or unchanged if no match).
+            LineStreamItem: Lines with substituted content (or unchanged if no match).
         """
         lineinfo.data = self.regex.sub(self.replacement, lineinfo.data)
         yield lineinfo
@@ -117,15 +117,15 @@ class SkipRepeatedBlankLines(TransformBase):
         """
         self.last_was_blank = False  # State to track if the last line was blank
 
-    def transform(self, lineinfo: LineInfo) -> Iterable[LineInfo]:
+    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
         """
         Transforms the input to skip repeated blank lines.
 
         Args:
-            lineinfo (LineInfo): The current line to process.
+            lineinfo (LineStreamItem): The current line to process.
 
         Yields:
-            LineInfo: Lines that are not repeating blank lines.
+            LineStreamItem: Lines that are not repeating blank lines.
         """
         is_blank = not lineinfo.data.strip()  # Check if the current line is blank
 

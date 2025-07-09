@@ -1,7 +1,5 @@
-
 from contextlib import ExitStack
 from typing import List
-
 
 # Nice that pipeline only operates on baseclasses.
 from _base import InputBase, OutputBase, TransformBase
@@ -13,8 +11,8 @@ class Pipeline:
     applies a sequence of transformations, and writes the processed data to multiple outputs.
 
     The pipeline operates using `InputBase`, `TransformBase`, and `OutputBase`-derived objects:
-      - **Inputs**: Data sources that produce streams of `LineInfo` objects (e.g., files, strings).
-      - **Transforms**: Processors that modify the `LineInfo` objects in sequence.
+      - **Inputs**: Data sources that produce streams of `LineStreamItem` objects (e.g., files, strings).
+      - **Transforms**: Processors that modify the `LineStreamItem` objects in sequence.
       - **Outputs**: Data targets for writing transformed rows.
 
     Resource handling (e.g., cleaning up files, closing connections) is managed via context managers,
@@ -23,13 +21,13 @@ class Pipeline:
     Attributes:
         inputs (List[InputBase]):
             A list of input sources that implement the `InputBase` interface, each emitting a
-            stream of `LineInfo` objects.
+            stream of `LineStreamItem` objects.
         transforms (List[TransformBase]):
             A list of transformations implementing the `TransformBase` interface, to be applied
-            sequentially to each `LineInfo` object in the input stream.
+            sequentially to each `LineStreamItem` object in the input stream.
         outputs (List[OutputBase]):
             A list of output targets implementing the `OutputBase` interface, each writing the
-            final transformed stream of `LineInfo` objects.
+            final transformed stream of `LineStreamItem` objects.
     """
 
     def __init__(self):
@@ -39,6 +37,25 @@ class Pipeline:
         self.inputs: List[InputBase] = []
         self.transforms: List[TransformBase] = []
         self.outputs: List[OutputBase] = []
+        self.pipelines: List["Pipeline"] = []
+
+    def add_pipeline(self, input_: "Pipeline"):
+        """
+        Adds sub pipeline to the pipeline.
+
+
+        Args:
+            input_ (InputBase):
+                An instance of a class derived from `InputBase` that defines a data source
+                (e.g., a file reader or in-memory stream).
+
+        Returns:
+            Pipeline:
+                The current pipeline instance (to allow method chaining).
+
+        """
+        self.pipelines.append(input_)
+        return self
 
     def add_input(self, input_: InputBase):
         """
@@ -56,14 +73,14 @@ class Pipeline:
         self.inputs.append(input_)
         return self
 
-    def add_transform(self, transform: TransformBase):
+    def add_transform(self, transform: TransformBase) -> "Pipeline":
         """
         Adds a transformation to the pipeline.
 
         Args:
             transform (TransformBase):
                 An instance of a class derived from `TransformBase` that defines a transform
-                to process `LineInfo` objects.
+                to process `LineStreamItem` objects.
 
         Returns:
             Pipeline:
@@ -72,7 +89,7 @@ class Pipeline:
         self.transforms.append(transform)
         return self
 
-    def add_output(self, output: OutputBase):
+    def add_output(self, output: OutputBase) -> "Pipeline":
         """
         Adds an output target to the pipeline.
 
@@ -88,7 +105,7 @@ class Pipeline:
         self.outputs.append(output)
         return self
 
-    def __or__(self, other):
+    def __or__(self, other: InputBase | TransformBase | OutputBase) -> "Pipeline":
         """
         Overloads the `|` operator to add an input, transform, or output to the pipeline.
 
@@ -115,7 +132,7 @@ class Pipeline:
             raise TypeError(f"Unsupported type for pipeline: {type(other).__name__}")
         return self
 
-    def __ior__(self, other):
+    def __ior__(self, other: InputBase | TransformBase | OutputBase) -> "Pipeline":
         """
         Overloads the `|=` operator, delegating to the `|` operator.
 
@@ -129,12 +146,12 @@ class Pipeline:
         """
         return self.__or__(other)  # |= behaves the same as |
 
-    def run(self):
+    def run(self) -> "Pipeline":
         """
         Executes the pipeline by:
         1. Managing context for inputs and outputs using `ExitStack`.
-        2. Streaming data from each input as `LineInfo` objects.
-        3. Applying the defined sequence of transformations to each `LineInfo` object.
+        2. Streaming data from each input as `LineStreamItem` objects.
+        3. Applying the defined sequence of transformations to each `LineStreamItem` object.
         4. Writing the transformed data to all outputs.
 
         Errors encountered during processing are not explicitly handled here;
@@ -149,7 +166,7 @@ class Pipeline:
             - Each transformation is applied to the data stream one row at a time.
         """
 
-        # Thank you GPT-4, I guess that there was some mechanism for handling multiple
+        # Thank you GPT-4, I guessed that there was some mechanism for handling multiple
         # context managers at the same time.  This basically worked out of the box.
         with ExitStack() as stack:
             # Enter context for inputs and outputs
@@ -171,17 +188,19 @@ class Pipeline:
                 for output in managed_outputs:
                     output.write(row)
 
+        return self
+
     def _apply_transforms_in_sequence(self, input_stream):
         """
-        Applies all transformations to a stream of `LineInfo` objects in sequence.
+        Applies all transformations to a stream of `LineStreamItem` objects in sequence.
 
         Args:
             input_stream (iterable):
-                A generator or other iterable that emits `LineInfo` objects.
+                A generator or other iterable that emits `LineStreamItem` objects.
 
         Returns:
             generator:
-                A generator that yields transformed `LineInfo` objects.
+                A generator that yields transformed `LineStreamItem` objects.
         """
         stream = input_stream
         for transform in self.transforms:
@@ -194,14 +213,14 @@ class Pipeline:
 
         Args:
             input_stream (iterable):
-                A generator or other iterable emitting `LineInfo` objects.
+                A generator or other iterable emitting `LineStreamItem` objects.
             transform (TransformBase):
                 An instance of a class derived from `TransformBase` that defines a
                 `transform(row)` method.
 
         Yields:
-            LineInfo:
-                The transformed `LineInfo` objects, one at a time.
+            LineStreamItem:
+                The transformed `LineStreamItem` objects, one at a time.
 
         Raises:
             Exception:

@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Iterable, List
 
 from _base import InputBase
-from _lineinfo import LineInfo
+from _streamitem import LineStreamItem
 
 
 class FromFile(InputBase):
@@ -21,15 +21,15 @@ class FromFile(InputBase):
             self.file.close()
             self.file = None  # Reset the file handle
 
-    def stream(self) -> Iterable[LineInfo]:
-        """Read lines from the file and yield LineInfo objects."""
+    def stream(self) -> Iterable[LineStreamItem]:
+        """Read lines from the file and yield LineStreamItem objects."""
         if not self.file:  # Fallback if file is not already open
             with open(self.filepath) as file:
                 for line_number, line in enumerate(file, start=1):
-                    yield LineInfo(sequence_id=line_number, resource_name=str(self.filepath), data=line.strip())
+                    yield LineStreamItem(sequence_id=line_number, resource_name=str(self.filepath), data=line.strip())
         else:  # Use the file handle opened via the context manager
             for line_number, line in enumerate(self.file, start=1):
-                yield LineInfo(sequence_id=line_number, resource_name=str(self.filepath), data=line.strip())
+                yield LineStreamItem(sequence_id=line_number, resource_name=str(self.filepath), data=line.strip())
 
 
 
@@ -54,12 +54,12 @@ class FromFolder:
         if self.keep_extensions and self.ignore_extensions:
             raise ValueError("You can specify either keep_extensions or ignore_extensions, but not both.")
 
-    def stream(self) -> Iterable["LineInfo"]:
+    def stream(self) -> Iterable["LineStreamItem"]:
         """
-        Streams LineInfo objects from files in the folder, filtering based on file extensions.
+        Streams LineStreamItem objects from files in the folder, filtering based on file extensions.
 
         Yields:
-            LineInfo: LineInfo objects from each filtered file in the folder.
+            LineStreamItem: LineStreamItem objects from each filtered file in the folder.
         """
         for filepath in self.folder_path.iterdir():
             if filepath.is_file() and self._should_include(filepath.suffix):
@@ -115,12 +115,12 @@ class FromRGlob:
         if self.keep_extensions and self.ignore_extensions:
             raise ValueError("You can specify either keep_extensions or ignore_extensions, but not both.")
 
-    def stream(self) -> Iterable["LineInfo"]:
+    def stream(self) -> Iterable["LineStreamItem"]:
         """
-        Streams LineInfo objects from files in the folder hierarchy, filtering based on file extensions and folders.
+        Streams LineStreamItem objects from files in the folder hierarchy, filtering based on file extensions and folders.
 
         Yields:
-            LineInfo: LineInfo objects from each filtered file in the folder.
+            LineStreamItem: LineStreamItem objects from each filtered file in the folder.
         """
         for filepath in self.folder_path.rglob("*"):
             # Skip folders in the ignore_folders list
@@ -169,8 +169,8 @@ class FromString(InputBase):
         """
         pass
 
-    def stream(self) -> Iterable[LineInfo]:
+    def stream(self) -> Iterable[LineStreamItem]:
         """Stream lines split by the specified separator."""
         for line_number, data in enumerate(self.text.split(self.sep), start=1):
-            yield LineInfo(sequence_id=line_number, resource_name=self.name, data=data)
+            yield LineStreamItem(sequence_id=line_number, resource_name=self.name, data=data)
 

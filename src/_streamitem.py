@@ -1,11 +1,11 @@
 import dataclasses
 
-from _base import DataInfo
+from _base import StreamItem
 
 @dataclasses.dataclass
-class LineInfo(DataInfo):
+class LineStreamItem(StreamItem):
     """
-    Represents a single line of text in a pipeline.
+    Represents a single line of text read from a (typically) a file in a pipeline.
 
     Attributes:
         sequence_id (int): Line number in the originating text resource.
@@ -16,8 +16,8 @@ class LineInfo(DataInfo):
 
     def validate(self):
 
-        # Validate `data` specific to `LineInfo`
+        # Validate `data` specific to `LineStreamItem`
         if not isinstance(self.data, str):
-            raise ValueError("Data must be a string for LineInfo")
+            raise ValueError("Data must be a string for LineStreamItem")
 
 
