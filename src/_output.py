@@ -13,7 +13,6 @@ class ToStdOut(OutputBase):
         """
         super().__init__()
         msg = lineinfo.data
-        self.update_size(msg)
         print(lineinfo.data)
 
     def __enter__(self):
@@ -69,7 +68,6 @@ class ToFile(OutputBase):
         """
         msg = lineinfo.data + "\n"
         self.file.write(msg)
-        self.update_size(msg)
 
     def close(self):
         """
@@ -94,7 +92,6 @@ class ToString(OutputBase):
             lineinfo (LineStreamItem): The LineInfo object to write.
         """
         msg = lineinfo.data + '\n'
-        self.update_size(msg)
         self.text_output += str(msg)
 
     def __enter__(self):

@@ -24,7 +24,6 @@ def test_pipeline_with_string_io():
     # Assert: Validate that the output matches expectations
     expected_output = "FIRST LINE\nSECOND LINE\nTHIRD LINE\n"
     assert output_to_string.text_output == expected_output
-    assert output_to_string.size == 34
 
 def test_pipeline_with_meta_string_io():
     # Arrange: Define input, transformations, output, and the pipeline
@@ -149,7 +148,6 @@ def test_pipeline_ior_operator():
     # the only output is a string output.  So when the pipeline finishes the
     # result is in the text_output property of the to_string object.
     assert to_string.text_output == "foo\n"
-    assert to_string.size == 4
 
 def test_pipeline_with_error_filter():
     """

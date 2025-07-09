@@ -45,7 +45,7 @@ class StreamItem(ABC):
         self.validate()
 
     @abstractmethod
-    def validate(self):
+    def validate(self): #pragma no cover
         """Perform additional subclass-specific validation."""
         pass
 
@@ -54,7 +54,7 @@ class InputBase(ABC): # no cover
     """Base class for all input components."""
 
     @abstractmethod
-    def stream(self) -> Iterable[StreamItem]:
+    def stream(self) -> Iterable[StreamItem]: # pragma no cover
         pass
 
 
@@ -63,7 +63,7 @@ class TransformBase(ABC): # no cover
     """Base class for all transformation components."""
 
     @abstractmethod
-    def transform(self, item: StreamItem) -> Iterable[StreamItem]:
+    def transform(self, item: StreamItem) -> Iterable[StreamItem]: # pragma no cover
         pass
 
 
@@ -71,9 +71,7 @@ class TransformBase(ABC): # no cover
 class OutputBase(ABC): #pragma no cover
     """Base class for all output components."""
     def __init__(self):
-
-        # Track Bytes Written
-        self._size = 0
+        pass
 
     def __enter__(self):
         """
@@ -89,14 +87,6 @@ class OutputBase(ABC): #pragma no cover
         """
         pass
 
-
-    def update_size(self,text):
-        self._size += len(text)
-
-    @property
-    def size(self):
-        # Number of bytes written.
-        return self._size
 
     @abstractmethod
     def write(self, lineinfo: StreamItem):
