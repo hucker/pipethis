@@ -2,7 +2,7 @@ from contextlib import ExitStack
 from typing import List
 
 # Nice that pipeline only operates on baseclasses.
-from _base import InputBase, OutputBase, TransformBase
+from ._base import InputBase, OutputBase, TransformBase
 
 
 class Pipeline:

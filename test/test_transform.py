@@ -1,7 +1,7 @@
 import pytest
 
-from _streamitem import LineStreamItem
-from _transform import SkipRepeatedBlankLines, UpperCase, LowerCase, AddMetaData,PassThrough
+from pipethis._streamitem import LineStreamItem
+from pipethis._transform import SkipRepeatedBlankLines, UpperCase, LowerCase, AddMetaData,PassThrough
 
 @pytest.mark.parametrize(
     "lineinfo, expected_line",

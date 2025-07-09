@@ -1,9 +1,8 @@
 
 import pytest
-import os
-from _streamitem import LineStreamItem
-from _transform import RegexKeepFilter, RegexSkipFilter, RegexSubstituteTransform
-from _output import ToStdOut, ToFile,ToString
+from pipethis._streamitem import LineStreamItem
+from pipethis._transform import RegexKeepFilter, RegexSkipFilter, RegexSubstituteTransform
+from pipethis._output import ToStdOut, ToFile,ToString
 
 
 @pytest.mark.parametrize("lines", [

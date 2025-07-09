@@ -1,6 +1,6 @@
 import pytest
 import pathlib
-from _inputs import FromString,FromFolder,FromFile,FromRGlob
+from pipethis._inputs import FromString,FromFolder,FromFile,FromRGlob
 
 def test_from_string_basic():
     """Test `FromString` with basic multiline input."""

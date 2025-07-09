@@ -1,6 +1,6 @@
 import dataclasses
 
-from _base import StreamItem
+from ._base import StreamItem
 
 @dataclasses.dataclass
 class LineStreamItem(StreamItem):

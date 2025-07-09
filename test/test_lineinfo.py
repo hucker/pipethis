@@ -1,5 +1,5 @@
 import pytest
-from _streamitem import LineStreamItem
+from pipethis._streamitem import LineStreamItem
 
 
 def test_streamitem_initialization():

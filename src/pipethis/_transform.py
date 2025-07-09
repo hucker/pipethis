@@ -1,8 +1,8 @@
 import re
 from typing import Iterable
 
-from _base import TransformBase
-from _streamitem import LineStreamItem
+from ._base import TransformBase
+from ._streamitem import LineStreamItem
 
 
 class PassThrough(TransformBase):

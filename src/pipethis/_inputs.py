@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Iterable, List
 
-from _base import InputBase
-from _streamitem import LineStreamItem
+from ._base import InputBase
+from ._streamitem import LineStreamItem
 
 
 class FromFile(InputBase):

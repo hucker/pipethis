@@ -1,9 +1,9 @@
 import pytest
 
-from _inputs import FromString
-from _output import ToString
-from _transform import AddMetaData, UpperCase,PassThrough,RegexKeepFilter
-from _pipeline import Pipeline
+from pipethis._inputs import FromString
+from pipethis._output import ToString
+from pipethis._transform import AddMetaData, UpperCase,PassThrough,RegexKeepFilter
+from pipethis._pipeline import Pipeline
 
 def test_pipeline_with_string_io():
     # Arrange: Define input, transformations, output, and the pipeline
@@ -291,3 +291,11 @@ ERROR: database query failed"""
     assert len(result_lines) == 2
     assert "ERROR: could not connect to database" in result_lines
     assert "ERROR: database query failed" in result_lines
+
+def test_add_pipeline():
+    pipeline1 = Pipeline() | FromString("foo")
+    pipeline2 = Pipeline() | FromString("baz")
+    pipeline3 = Pipeline()
+    pipeline3.add_pipeline(pipeline1)
+    pipeline3.add_pipeline(pipeline2)
+    assert pipeline3.pipelines == [pipeline1, pipeline2]

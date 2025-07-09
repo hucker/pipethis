@@ -1,5 +1,5 @@
-from _base import OutputBase
-from _streamitem import LineStreamItem
+from ._base import OutputBase
+from ._streamitem import LineStreamItem
 
 
 class ToStdOut(OutputBase):
