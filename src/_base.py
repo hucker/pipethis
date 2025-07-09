@@ -47,28 +47,28 @@ class StreamItem(ABC):
     @abstractmethod
     def validate(self):
         """Perform additional subclass-specific validation."""
-        pass # pragma: no cover
+        pass
 
 
-class InputBase(ABC):
+class InputBase(ABC): # no cover
     """Base class for all input components."""
 
     @abstractmethod
     def stream(self) -> Iterable[StreamItem]:
-        pass # pragma: no cover
+        pass
 
 
 
-class TransformBase(ABC):
+class TransformBase(ABC): # no cover
     """Base class for all transformation components."""
 
     @abstractmethod
     def transform(self, item: StreamItem) -> Iterable[StreamItem]:
-        pass # pragma: no cover
+        pass
 
 
 
-class OutputBase(ABC):
+class OutputBase(ABC): #pragma no cover
     """Base class for all output components."""
     def __init__(self):
 
@@ -80,14 +80,14 @@ class OutputBase(ABC):
         Default context manager behavior.
         Does nothing, as not all outputs need special setup.
         """
-        return self # pragma: no cover
+        return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         """
         Default context manager behavior.
         Does nothing, as not all outputs need special cleanup.
         """
-        pass # pragma: no cover
+        pass
 
 
     def update_size(self,text):
@@ -100,8 +100,8 @@ class OutputBase(ABC):
 
     @abstractmethod
     def write(self, lineinfo: StreamItem):
-        pass # pragma: no cover
+        pass
 
     def close(self):
-        pass # pragma: no cover
+        pass
 
