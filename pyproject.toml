@@ -1,29 +1,16 @@
 [project]
 name = "textline"
 version = "0.1.0"
-description = "Pipeline Tool"
-requires-python = ">=3.10"
-
-
-[project]
-name = "textline"
-version = "0.1.0"
 description = "Add your description here"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 dependencies = []
 
-[project.optional-dependencies]
+[tool.uv]
+dev-dependencies=[
 # Specify development dependencies like pylint and coverage
-dev = [
-    "pylint>=3.3.7",
-    "coverage>=7.3.0"
+"pylint>=3.3.7",
+"coverage>=7.3.0"
 ]
-
-[tool.coverage.report]
-exclude_lines = [
-    "@abstractmethod"  # Exclude all lines with the @abstractmethod decorator
-]
-
 
 [tool.coverage.report]
 exclude_lines = [
