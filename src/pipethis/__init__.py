@@ -1,8 +1,8 @@
 # Exporting base classes
-from ._base import StreamItem, InputBase, TransformBase, OutputBase
+from ._base import FileHandlerBase, StreamItem, InputBase, TransformBase, OutputBase
 
 # Exporting input components
-from ._inputs import FromFile, FromFolder, FromRGlob, FromString
+from ._inputs import FromFile, FromFolder, FromGlob, FromString, FromStrings
 
 # Exporting line data representation
 from ._streamitem import LineStreamItem
@@ -25,16 +25,25 @@ from ._transform import (
     SkipRepeatedBlankLines
 )
 
+from ._file_handler import TextFileHandler
+
+# Can be overridden by client.
+from ._base import FileHandlerBase
+
 # Define the public API of the package
 __all__ = [
     # Base classes
     "StreamItem", "InputBase", "TransformBase", "OutputBase",
 
     # Inputs
-    "FromFile", "FromFolder", "FromRGlob", "FromString",
+    "FromFile", "FromFolder", "FromGlob", "FromString","FromStrings",
 
     # Line data representation
     "LineStreamItem",
+
+    # File hanlders
+    "FileHandlerBase",
+    "TextFileHandler",
 
     # Outputs
     "ToStdOut", "ToFile", "ToString",

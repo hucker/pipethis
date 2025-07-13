@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Iterable,Any
+import pathlib
 import dataclasses
 
 
@@ -48,6 +49,38 @@ class StreamItem(ABC):
     def validate(self): #pragma no cover
         """Perform additional subclass-specific validation."""
         pass
+
+
+
+
+class FileHandlerBase(ABC):
+    """
+    Abstract base class for handling files of various types. Supports resource
+    management via context manager methods.
+    """
+
+    def __init__(self, file_path: pathlib.Path):
+        self.file_path = file_path
+
+    @abstractmethod
+    def stream(self) -> Iterable[StreamItem]:
+        """
+        Stream the content of the file as StreamItems.
+        """
+        pass
+
+    def __enter__(self):
+        """
+        Prepare resources for file handling.
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Clean up resources associated with file handling.
+        """
+        pass
+
 
 
 class InputBase(ABC): # no cover
