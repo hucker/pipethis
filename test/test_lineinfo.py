@@ -1,8 +1,9 @@
 import pytest
+# noinspection PyProtectedMember
 from pipethis._streamitem import LineStreamItem
 
 
-def test_streamitem_initialization():
+def test_stream_item_initialization():
     """Test that LineStreamItem initializes correctly with provided values."""
     lineinfo = LineStreamItem(sequence_id=1, resource_name="test.txt", data="Hello, World!")
 
@@ -11,7 +12,7 @@ def test_streamitem_initialization():
     assert lineinfo.data == "Hello, World!"
 
 
-def test_lineinfo_equality_same_values():
+def test_line_info_equality_same_values():
     """Test that two LineStreamItem objects with the same values are equal."""
     line1 = LineStreamItem(sequence_id=1, resource_name="test.txt", data="Hello, World!")
     line2 = LineStreamItem(sequence_id=1, resource_name="test.txt", data="Hello, World!")
@@ -85,10 +86,10 @@ def test_invalid_line_number(sequence_id):
 @pytest.mark.parametrize(
     "resource_name",
     [
-        (""),  # Empty string
-        ("   "),  # Whitespace-only string
-        (None),  # NoneType
-        (123),  # Non-string type
+        "",  # Empty string
+        "   ",  # Whitespace-only string
+        None,  # NoneType
+        123,  # Non-string type
     ],
 )
 def test_invalid_resource_name(resource_name):

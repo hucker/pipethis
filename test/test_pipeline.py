@@ -1,8 +1,12 @@
 import pytest
 
+# noinspection PyProtectedMember
 from pipethis._inputs import FromString
+# noinspection PyProtectedMember
 from pipethis._output import ToString
+# noinspection PyProtectedMember
 from pipethis._transform import AddMetaData, UpperCase,PassThrough,RegexKeepFilter
+# noinspection PyProtectedMember
 from pipethis._pipeline import Pipeline
 
 def test_pipeline_with_string_io():
@@ -144,7 +148,7 @@ def test_pipeline_ior_operator():
 
     pipeline.run()
 
-    # Normally the output of a pipleine ends up in a file.  In this case
+    # Normally the output of a pipleline ends up in a file.  In this case
     # the only output is a string output.  So when the pipeline finishes the
     # result is in the text_output property of the to_string object.
     assert to_string.text_output == "foo\n"

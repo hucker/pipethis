@@ -1,6 +1,11 @@
 
 ## Overview
-`pipethis` is a Python library designed to simplify the process of building, extending, and executing data pipelines.
+
+Pipethis is an excercise in learning how to create objects that are composed using functions and general python
+operator overloading mechansims to andle simple pipelines.  While it has nearly 100% test coverage and is quite 
+flexible it is mostly a demonstration of basic program construction using Python.
+
+`pipethis` is a package designed to simplify the process of building, extending, and executing data pipelines.
 It provides a modular framework that enables users to define pipelines as a sequence of operations and data 
 transformations. Each pipeline can ingest data, process it through customizable transformations, and output 
 the results in various formats. The library follows a clean and extensible architecture, allowing developers to
@@ -11,9 +16,34 @@ pipelines programmatically.
 
 ### **1. Inputs**
 Inputs determine how data is ingested into the pipeline. The package provides several options, including:
-- `FromString`: Reads data from a Python string.
+- `FromString`: Reads data from a Python string (largely for testing.)
 - `FromFile`: Reads data from a file.
 - `FromFolder`: Reads data from multiple files in a directory.
+- 'FromGlob': Reads multiple folders and calls from file for each item
+
+The core concept if inputs is the notion of file handlers. File handlers are called on each file that is detected
+in the inputs.  Files generally are treated line by line (for things like text files) and file by file for things
+like images.  The handler classes stream method for standard text files is nothing more than yielding each line into
+a line stream item while keeping track of line numbers (which is very important for debugging)
+
+```python
+ from pipethis._file_handler import FileHandlerBase
+ from pipethis._streamitem import LineStreamItem
+ class TextFileHandler(FileHandlerBase):
+    # Class ommitted
+    
+    def stream(self):
+        """
+        Stream lines from the opened file as LineStreamItems.
+        """
+        if not self._file:
+            raise RuntimeError("The file is not open. You must use this file_handler in a context manager.")
+
+        for sequence_id, line in enumerate(self._file, start=1):
+            yield LineStreamItem(sequence_id=sequence_id, resource_name=(self.file_path), data=line.strip())
+   ```
+
+This same mechanism works for files that are processed all at once.
 
 Example:
 ```python
@@ -134,7 +164,7 @@ To test or modify the package locally:
 
 ---
 ## Testing
-The current 
+The current implementation has > 95% test coverage.
 
 ---
 ## Contributions

@@ -41,7 +41,7 @@ __all__ = [
     # Line data representation
     "LineStreamItem",
 
-    # File hanlders
+    # File handlers
     "FileHandlerBase",
     "TextFileHandler",
 

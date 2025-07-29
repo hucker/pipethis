@@ -1,6 +1,8 @@
 import pytest
 
+# noinspection PyProtectedMember
 from pipethis._streamitem import LineStreamItem
+# noinspection PyProtectedMember
 from pipethis._transform import SkipRepeatedBlankLines, UpperCase, LowerCase, AddMetaData,PassThrough
 
 @pytest.mark.parametrize(

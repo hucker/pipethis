@@ -1,10 +1,14 @@
 
 import pytest
+# noinspection PyProtectedMember
 from pipethis._streamitem import LineStreamItem
+# noinspection PyProtectedMember
 from pipethis._transform import RegexKeepFilter, RegexSkipFilter, RegexSubstituteTransform
+# noinspection PyProtectedMember
 from pipethis._output import ToStdOut, ToFile,ToString
 
 
+# noinspection SpellCheckingInspection
 @pytest.mark.parametrize("lines", [
     # Test case with multiple lines
     [
@@ -205,6 +209,7 @@ def test_to_string_context_manager():
         assert to_string.text_output == expected_output
 
 # Assuming ToStdOut is implemented and overrides `write`
+# noinspection SpellCheckingInspection
 def test_to_stdout_context_manager(capsys):
     """
     Test that ToStdOut properly writes to standard output

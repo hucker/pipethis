@@ -63,25 +63,26 @@ class FileHandlerBase(ABC):
         self.file_path = file_path
 
     @abstractmethod
-    def stream(self) -> Iterable[StreamItem]:
+    def stream(self) -> Iterable[StreamItem]:   # pragma: no cover
+
         """
         Stream the content of the file as StreamItems.
         """
         pass
 
-    def __enter__(self):
+    def __enter__(self):   # pragma: no cover
+
         """
         Prepare resources for file handling.
         """
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type, exc_value, traceback):   # pragma: no cover
+
         """
         Clean up resources associated with file handling.
         """
         pass
-
-
 
 class InputBase(ABC): # no cover
     """Base class for all input components."""

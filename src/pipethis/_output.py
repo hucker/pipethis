@@ -12,7 +12,6 @@ class ToStdOut(OutputBase):
             lineinfo (LineStreamItem): The LineInfo object to write.
         """
         super().__init__()
-        msg = lineinfo.data
         print(lineinfo.data)
 
     def __enter__(self):

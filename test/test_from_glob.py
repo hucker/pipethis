@@ -3,6 +3,7 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from pipethis import TextFileHandler
+# noinspection PyProtectedMember
 from pipethis._inputs import FromGlob
 
 
@@ -35,7 +36,7 @@ def test_from_glob_all_files(setup_files):
         results = list(from_rglob.stream())
 
     # Check that all file lines are included
-    expected_files = set(["file1.txt", "file2.log", "file3.txt", "file4.tmp", "file5.txt", "file6.log"])
+    expected_files = {"file1.txt", "file2.log", "file3.txt", "file4.tmp", "file5.txt", "file6.log"}
     actual_files = {pathlib.Path(result.resource_name).name for result in results}
     assert expected_files == actual_files
     assert len(results) == 8
@@ -46,7 +47,7 @@ def test_from_glob_keep_extensions(setup_files):
         results = list(from_rglob.stream())
 
     # Check that only .txt file lines are included
-    expected_files = set(["file1.txt", "file3.txt", "file5.txt"])
+    expected_files = {"file1.txt", "file3.txt", "file5.txt"}
     actual_files = {pathlib.Path(result.resource_name).name for result in results}
     assert len(results) == 5  # 2 lines from each .txt file
     assert expected_files == actual_files
@@ -57,7 +58,7 @@ def test_from_glob_ignore_extensions(setup_files):
         results = list(from_rglob.stream())
 
     # Check that .log and .tmp files are excluded
-    expected_files = set(["file1.txt", "file3.txt", "file5.txt"])
+    expected_files = {"file1.txt", "file3.txt", "file5.txt"}
     actual_files = {pathlib.Path(result.resource_name).name for result in results}
     assert len(results) == 5  # 2 lines from each non-ignored file
     assert expected_files == actual_files
@@ -98,3 +99,18 @@ def test_from_glob_keep_extensions_and_ignore_folders(setup_files):
     expected_files = ["file1.txt", "file3.txt"]
     assert len(results) == 4  # 2 lines from each included file
     assert all(pathlib.Path(line_info.resource_name).name in expected_files for line_info in results)
+
+def test_from_glob_invalid_folder_path():
+    """Test that a ValueError is raised when the folder path is invalid."""
+    with pytest.raises(ValueError, match="You can specify either keep_patterns or ignore_patterns, but not both."):
+        FromGlob(folder_path="", keep_patterns=["*.txt"], ignore_patterns=["temp"])
+
+def test_fromglob_missing_file_handler_in_enter():
+    """
+    Test that FromGlob raises a ValueError when entering the context and `file_handler` is missing.
+    """
+    folder_path = pathlib.Path("/fake/folder")
+
+    with pytest.raises(ValueError, match=f"Glob folder_path {folder_path} does not exist."):
+        from_glob = FromGlob(folder_path)
+

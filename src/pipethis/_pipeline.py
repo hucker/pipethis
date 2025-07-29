@@ -207,7 +207,8 @@ class Pipeline:
             stream = self._apply_single_transform(stream, transform)
         return stream
 
-    def _apply_single_transform(self, input_stream, transform):
+    @staticmethod
+    def _apply_single_transform(input_stream, transform):
         """
         Applies a single transformation function to an input stream.
 
