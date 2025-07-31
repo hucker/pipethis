@@ -1,4 +1,5 @@
 import pathlib
+
 from ._base import FileHandlerBase
 from ._streamitem import LineStreamItem
 
@@ -9,10 +10,9 @@ class TextFileHandler(FileHandlerBase):
     Supports context management to open and close file resources.
     """
 
-    def __init__(self, file_path: pathlib.Path,encoding='utf-8'):
+    def __init__(self, file_path: pathlib.Path, encoding='utf-8'):
 
         # Delay import yuck, to prevent circular imports.
-        from ._inputs import FromFile
         super().__init__(file_path)
         self._file = None  # Internal file resource
         self.encoding = encoding

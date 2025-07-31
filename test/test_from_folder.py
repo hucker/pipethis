@@ -13,6 +13,10 @@ def folder_with_files(tmp_path):
     folder = tmp_path / "test_folder"
     folder.mkdir()
 
+    # This verifies that we don't dive into folders
+    empty_folder = folder / "empty_folder"
+    empty_folder.mkdir()
+
     # Create files
     file1 = folder / "file1.txt"
     file1.write_text("This is file 1.\nLine 2 of file 1.")
@@ -101,10 +105,6 @@ def test_folder_filtering(folder_with_files, keep_patterns, ignore_patterns, exp
     assert processed_files == expected_files
 
 
-
-
-
-
 def test_from_folder_empty_folder(tmp_path):
     """Test FromFolder with an empty folder."""
     empty_folder = tmp_path / "empty_folder"
@@ -123,24 +123,3 @@ def test_from_folder_conflicting_filters(folder_with_files):
     with pytest.raises(ValueError, match="You can specify either keep_patterns or ignore_patterns, but not both."):
         FromFolder(folder_with_files, keep_patterns=[".txt"], ignore_patterns=[".log"])
 
-def create_file(file_path: pathlib.Path, content: str = ""):
-    """Helper function to create a file with specific content."""
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-    file_path.write_text(content)
-
-from tempfile import TemporaryDirectory
-@pytest.fixture
-def setup_files() -> pathlib.Path:
-    """Fixture to set up a temporary folder structure for testing."""
-    with TemporaryDirectory() as temp_dir:
-        root = pathlib.Path(temp_dir)
-
-        # Create files and folders
-        create_file(root / "file1.txt", "File 1, Line 1\nFile 1, Line 2")
-        create_file(root / "file2.log", "File 2, Line 1")
-        create_file(root / "folder1" / "file3.txt", "File 3, Line 1\nFile 3, Line 2")
-        create_file(root / "folder1" / "file4.tmp", "File 4, Line 1")
-        create_file(root / "ignored_folder" / "file5.txt", "File 5, Line 1")
-        create_file(root / "ignored_folder" / "file6.log", "File 6, Line 1")
-
-        yield root

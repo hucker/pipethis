@@ -4,7 +4,7 @@ from ._streamitem import LineStreamItem
 
 class ToStdOut(OutputBase):
 
-    def write(self, lineinfo:LineStreamItem):
+    def write(self, lineinfo: LineStreamItem):
         """
         Write the output of a LineInfo object to either stdout or a file.
 
@@ -34,6 +34,7 @@ class ToStdOut(OutputBase):
         # But if there were, you could perform it now.
         pass
 
+
 class ToFile(OutputBase):
     def __init__(self, file_name=None, mode='w', encoding="utf-8"):
         """
@@ -58,7 +59,7 @@ class ToFile(OutputBase):
         """Ensure the file is closed properly on exit."""
         self.close()
 
-    def write(self, lineinfo:LineStreamItem):
+    def write(self, lineinfo: LineStreamItem):
         """
         Write the output of a LineInfo object to either stdout or a file.
 
@@ -81,7 +82,6 @@ class ToString(OutputBase):
     def __init__(self):
         super().__init__()
         self.text_output = ""  # This will store the concatenated string
-
 
     def write(self, lineinfo: LineStreamItem):
         """

@@ -1,8 +1,7 @@
-from ._streamitem import ImageStreamItem
+from PIL import Image, ImageEnhance
+
 from ._base import TransformBase
-from PIL import Image,ImageEnhance
-
-
+from ._streamitem import ImageStreamItem
 
 
 class ImageEnhancerTransformer(TransformBase):
@@ -76,4 +75,3 @@ class ImageEnhancerTransformer(TransformBase):
             resource_name=stream_item.resource_name,
             data=transformed_image
         )
-

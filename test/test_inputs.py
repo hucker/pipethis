@@ -209,28 +209,6 @@ def sample_file(tmp_path):
 
 
 
-# Pytest fixture to create temporary folder and files
-@pytest.fixture
-def folder_with_files(tmp_path):
-    """Creates a temporary folder with test files for FromFolder testing."""
-    folder = tmp_path / "test_folder"
-    folder.mkdir()
-
-    # Create files
-    file1 = folder / "file1.txt"
-    file1.write_text("This is file 1.\nLine 2 of file 1.")
-
-    file2 = folder / "file2.log"
-    file2.write_text("This is file 2.\nLine 2 of file 2.")
-
-    file3 = folder / "file3.txt"
-    file3.write_text("This is file 3.\nLine 2 of file 3.")
-
-    file4 = folder / "file4.tmp"
-    file4.write_text("This is file 4.\nLine 2 of file 4.")
-
-    # Return the folder path
-    return folder
 
 def test_from_strings_single_line_multi():
     """Test `FromString` with a single-line input."""

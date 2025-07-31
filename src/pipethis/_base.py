@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
-from typing import Iterable,Any
-import pathlib
 import dataclasses
+import pathlib
+from abc import ABC, abstractmethod
+from typing import Any, Iterable
 
 
 @dataclasses.dataclass
@@ -24,14 +24,14 @@ class StreamItem(ABC):
         data (Any): The actual data being processed. Subclasses specify the type.
     """
 
-    sequence_id: int     # Line number, page number, frame number
-    resource_name: str   # Typically a file name but can be anything useful to end user.
-    data: Any            # Data flowing in pipeline
+    sequence_id: int  # Line number, page number, frame number
+    resource_name: str  # Typically a file name but can be anything useful to end user.
+    data: Any  # Data flowing in pipeline
 
     def __post_init__(self):
 
         # Avoid confusion and don't allow bad whitespace.
-        if isinstance(self.resource_name,str):
+        if isinstance(self.resource_name, str):
             self.resource_name = self.resource_name.strip()
 
         # Validate `resource_name` (must be a non-empty string)
@@ -46,11 +46,9 @@ class StreamItem(ABC):
         self.validate()
 
     @abstractmethod
-    def validate(self): #pragma no cover
+    def validate(self):  # pragma no cover
         """Perform additional subclass-specific validation."""
         pass
-
-
 
 
 class FileHandlerBase(ABC):
@@ -63,47 +61,47 @@ class FileHandlerBase(ABC):
         self.file_path = file_path
 
     @abstractmethod
-    def stream(self) -> Iterable[StreamItem]:   # pragma: no cover
+    def stream(self) -> Iterable[StreamItem]:  # pragma: no cover
 
         """
         Stream the content of the file as StreamItems.
         """
         pass
 
-    def __enter__(self):   # pragma: no cover
+    def __enter__(self):  # pragma: no cover
 
         """
         Prepare resources for file handling.
         """
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):   # pragma: no cover
+    def __exit__(self, exc_type, exc_value, traceback):  # pragma: no cover
 
         """
         Clean up resources associated with file handling.
         """
         pass
 
-class InputBase(ABC): # no cover
+
+class InputBase(ABC):  # no cover
     """Base class for all input components."""
 
     @abstractmethod
-    def stream(self) -> Iterable[StreamItem]: # pragma no cover
+    def stream(self) -> Iterable[StreamItem]:  # pragma no cover
         pass
 
 
-
-class TransformBase(ABC): # no cover
+class TransformBase(ABC):  # no cover
     """Base class for all transformation components."""
 
     @abstractmethod
-    def transform(self, item: StreamItem) -> Iterable[StreamItem]: # pragma no cover
+    def transform(self, item: StreamItem) -> Iterable[StreamItem]:  # pragma no cover
         pass
 
 
-
-class OutputBase(ABC): #pragma no cover
+class OutputBase(ABC):  # pragma no cover
     """Base class for all output components."""
+
     def __init__(self):
         pass
 
@@ -121,11 +119,9 @@ class OutputBase(ABC): #pragma no cover
         """
         pass
 
-
     @abstractmethod
     def write(self, lineinfo: StreamItem):
         pass
 
     def close(self):
         pass
-

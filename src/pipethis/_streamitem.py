@@ -1,6 +1,9 @@
 import dataclasses
+
 from PIL import Image
+
 from ._base import StreamItem
+
 
 @dataclasses.dataclass
 class LineStreamItem(StreamItem):
@@ -15,7 +18,6 @@ class LineStreamItem(StreamItem):
     data: str  # Overrides the `data` field with specific type
 
     def validate(self):
-
         # Validate `data` specific to `LineStreamItem`
         if not isinstance(self.data, str):
             raise ValueError("Data must be a string for LineStreamItem")

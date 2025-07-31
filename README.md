@@ -125,7 +125,10 @@ Pipelines can be built incrementally and executed using the `run()` method:
 ```python
 from pipethis import Pipeline, FromString, UpperCase, ToFile
 
-pipeline = Pipeline() | FromString("data pipeline\nexample code") | UpperCase() | ToFile("output.txt")
+pipeline = (Pipeline() 
+           | FromString("data pipeline\nexample code")  
+           | UpperCase() 
+           | ToFile("output.txt"))
 pipeline.run()
 ```
 

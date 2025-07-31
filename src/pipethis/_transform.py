@@ -9,6 +9,7 @@ class PassThrough(TransformBase):
     def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
         yield lineinfo
 
+
 class UpperCase(TransformBase):
     def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
         yield LineStreamItem(sequence_id=lineinfo.sequence_id,
@@ -18,7 +19,6 @@ class UpperCase(TransformBase):
 
 class LowerCase(TransformBase):
     def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
-
         yield LineStreamItem(sequence_id=lineinfo.sequence_id,
                              resource_name=lineinfo.resource_name,
                              data=lineinfo.data.lower())
@@ -33,7 +33,6 @@ class AddMetaData(TransformBase):
             resource_name=lineinfo.resource_name,
             data=new_data
         )
-
 
 
 class RegexSkipFilter(TransformBase):
@@ -59,6 +58,7 @@ class RegexSkipFilter(TransformBase):
         if not self.regex.match(lineinfo.data):
             yield lineinfo
 
+
 class RegexKeepFilter(TransformBase):
     def __init__(self, pattern: str):
         """
@@ -81,6 +81,7 @@ class RegexKeepFilter(TransformBase):
         """
         if self.regex.match(lineinfo.data):
             yield lineinfo
+
 
 class RegexSubstituteTransform(TransformBase):
     def __init__(self, pattern: str, replacement: str):
