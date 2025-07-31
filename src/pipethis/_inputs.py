@@ -346,8 +346,10 @@ class FromGlob:
 
                 # Apply the matching rules
                 if self._should_keep(file_path.name):
-                    with self.file_handler(file_path=file_path) as handler:
-                        yield from handler.stream()
+                    # Use context management for FromFile to handle resources
+                    with FromFile(filepath=file_path, handler=self.file_handler).file_handler as from_file:
+                        yield from from_file.stream()
+
 
     def _should_keep(self, filename: str) -> bool:
         """
