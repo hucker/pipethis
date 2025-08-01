@@ -13,27 +13,52 @@ integrate predefined components or implement their own. Whether you're processin
 or experimenting with streaming data, `pipethis` streamlines the process, making it easy to assemble 
 pipelines programmatically.
 
-Grossly speaking the code implements this simple pattern:
+Grossly speaking the code allows you to take input from many sources, transform it and write the aggregated data to
+a number of outputs.  Obviously real world cases would likely have a single input and single output, but might have
+many transforms.
 
-```
-   +---------------------+         +------------------------+         +-----------------------+
-   |      Input          |         |      Transform         |         |        Output         |
-   |---------------------|         |------------------------|         |-----------------------|
-   | FromFile            | ----->  |     Upper              | ----->  |      ToFile           |
-   | FromFolder          |         |     Lower              |         |      ToString         |
-   | FromGlob            |         |     Regex              |         |      ToStdout         |
-   +---------------------+         +------------------------+         +-----------------------+
-```
 
 ```mermaid
 graph LR
-    A[FromFile] --> |Input| B[Upper]
-    A2[FromFolder] --> |Input| B
-    A3[FromGlob] --> |Input| B
-    B --> |Transform| C[ToFile]
-    B --> |Transform| C2[ToString]
-    B --> |Transform| C3[ToStdout]
+    subgraph Inputs
+        direction TB
+        A[FromFile]
+        B[FromFolder]
+        C[FromGlob]
+        D[FromString]
+        A --> B --> C --> D
+    end
+
+    subgraph Transform
+        direction TB
+        E[TransformUpper]
+        F[TransformRegEx]
+        E --> F
+    end
+
+    Inputs ==> Transform
+
+    subgraph Outputs
+        direction TB
+        G[ToFile]
+        H[ToStdout]
+        I[ToString]
+        G --> H --> I
+    end
+
+    Transform ==> Outputs
+
+    %% Style Definitions
+    style A font-size:14px
+    style B font-size:16px
+    style C font-size:12px
+    classDef generalFontSize font-size:18px
+    class F generalFontSize
+
 ```
+
+
+
 
 
 Does it work?  Yeah, it has 99+% coverage and 9.95/10.0 lint, so it is in decent shape.  I have used it for 
@@ -135,12 +160,12 @@ class ReplaceStrings(TransformBase):
 
 ### Custom Output Example
 ```python
+import sys
 from pipethis import OutputBase
 
-class LogToFile(OutputBase):
+class ToStdErr(OutputBase):
     def write(self, line):
-        with open("log.txt", "a") as log_file:
-            log_file.write(line.content + "\n")
+        sys.stderr.write(line.content + "\n")
 ```
 
 ---
@@ -164,7 +189,10 @@ Use `try/except` blocks to handle exceptions during pipeline execution:
 ```python
 from pipethis import Pipeline, FromString, UpperCase, ToFile
 try:
-   pipeline = Pipeline() | FromString("data pipeline\nexample code") | UpperCase() | ToFile("output.txt")
+   pipeline = (Pipeline() 
+               | FromString("data pipeline\nexample code") 
+               | UpperCase() 
+               | ToFile("output.txt"))
    pipeline.run()
 except IOError as iox:
    print(f"Unexpected error {iox}")
