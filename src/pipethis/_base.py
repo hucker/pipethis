@@ -28,15 +28,21 @@ class StreamItem(ABC):
     """
 
     sequence_id: int
-    resource_name: str
+    resource_name: str | pathlib.Path
     data: Any
 
     def __post_init__(self):
         """
         Perform additional validation and cleanup on initialization.
 
-        Ensures that sequence_id is positive and that resource_name is a non-empty string.
+        Ensures that sequence_id is positive and that resource_name is a non-empty string
+        allowing for pathlib objects to easily handled.
         """
+
+        # If resource_name is a Path, extract only the file name and extension
+        if isinstance(self.resource_name, pathlib.Path):
+            self.resource_name = self.resource_name.name
+
         # Avoid confusion and don't allow bad whitespace
         if isinstance(self.resource_name, str):
             self.resource_name = self.resource_name.strip()

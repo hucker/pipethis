@@ -2,20 +2,25 @@
 ## Overview
 
 Pipethis is an exercise in learning how to create objects that are composed using functions and general python
-operator overloading mechanisms to handle constructing pipelines.  While it has nearly 100% test coverage and is quite 
-flexible it is mostly a demonstration of basic program construction using Python.
+operator overloading mechanisms to handle constructing pipelines.  While it has 100% test coverage and is quite 
+flexible it is mostly a demonstration of basic package construction using Python.
 
 `pipethis` is a package designed to simplify the process of building, extending, and executing data pipelines.
 It provides a modular framework that enables users to define pipelines as a sequence of operations and data 
 transformations. Each pipeline can ingest data, process it through customizable transformations, and output 
-the results in various formats. The library follows a clean and extensible architecture, allowing developers to
+the results in various formats. The library follows a "clean" and extensible architecture, allowing developers to
 integrate predefined components or implement their own. Whether you're processing text files, building ETL pipelines, 
 or experimenting with streaming data, `pipethis` streamlines the process, making it easy to assemble 
 pipelines programmatically.
 
+When I use the word "clean", my main goals were making the tool to be easy to extend by adding file handlers and
+making the end user code "clean" even if this was at the expense of having the code have a few calls to
+`isinstance` or having many defaults that just work.
+
 Grossly speaking the code allows you to take input from many sources, transform it and write the aggregated data to
 a number of outputs.  Obviously real world cases would likely have a single input and single output, but might have
-many transforms.
+many transforms.  My use-case was processing log files from many folders, looking for ERROR and stack traces and 
+generating a report. 
 
 
 ```mermaid
@@ -58,10 +63,7 @@ graph LR
 ```
 
 
-
-
-
-Does it work?  Yeah, it has 99+% coverage and 9.95/10.0 lint, so it is in decent shape.  I have used it for 
+Does it work?  Yeah, it has 100% coverage and 9.95/10.0 lint, so it is in decent shape.  I have used it for 
 a few things, and it works, but YMMV.
 
 ### **1. Inputs**
@@ -82,7 +84,7 @@ stream images with the pillow library.
  from pipethis._file_handler import FileHandlerBase
  from pipethis._streamitem import LineStreamItem
  class TextFileHandler(FileHandlerBase):
-    # Class ommitted
+    # Class omitted
     
     def stream(self):
         """
@@ -90,7 +92,8 @@ stream images with the pillow library.
         """
         if not self._file:
             raise RuntimeError("The file is not open. You must use this file_handler in a context manager.")
-
+        
+        # Stream each line in the file with line number, a name and the data
         for sequence_id, line in enumerate(self._file, start=1):
             yield LineStreamItem(sequence_id=sequence_id, resource_name=(self.file_path), data=line.strip())
    ```
@@ -224,13 +227,30 @@ To test or modify the package locally:
 ---
 ## Testing
 
+*PYTEST*
+
+============================= 155 passed in 0.20s ==============================
+
 *LINT*
+
+The code uses this pylint setup:
+```ini
+[tool.pylint.design]
+min-public-methods = 0
+max-args = 6
+max-positional-arguments = 6
+```
+And generates this lint score.
+
 ```text
 ------------------------------------------------------------------
 Your code has been rated at 9.95/10 (previous run: 9.95/10, +0.00)
 ```
 
 *TOX*
+
+Tested on Python 3.10->3.13 (3.14 doesn't work on my M1 Mac)
+
 ```text
 =============================================================================================================================================================================== 151 passed in 0.77s ===============================================================================================================================================================================
   py313: OK (2.71=setup[1.72]+cmd[0.99] seconds)
@@ -242,14 +262,34 @@ Your code has been rated at 9.95/10 (previous run: 9.95/10, +0.00)
 ```
 
 *COVERAGE*
+
+The test suite reports this coverage with sparse use of `#no cover` in _base.py in in code where
+the base class will never be instantiated.
+
+```python
+
+from abc import ABC,abstractmethod
+ 
+class foo(ABC):
+    @abstractmethod
+    def validate(self):
+    """
+    Perform additional subclass-specific validation.
+    This method must be implemented by subclasses to add custom validation logic.
+    """
+    raise NotImplementedError("Subclasses must implement 'validate'") # pragma: no cover
+
+```
+
+
 ```text
 Name                               Stmts   Miss  Cover
 ------------------------------------------------------
 src/pipethis/__init__.py               8      0   100%
-src/pipethis/_base.py                 39      0   100%
+src/pipethis/_base.py                 41      0   100%
 src/pipethis/_file_handler.py         21      0   100%
 src/pipethis/_image_transform.py      31      0   100%
-src/pipethis/_inputs.py              138      1    99%
+src/pipethis/_inputs.py              152      0   100%
 src/pipethis/_output.py               38      0   100%
 src/pipethis/_pipeline.py             51      0   100%
 src/pipethis/_streamitem.py           15      0   100%
@@ -258,7 +298,8 @@ src/pipethis/_transform.py            47      0   100%
 ---
 ## Contributions
 
-Contributions are welcome! Please fork the repository, create a new branch for your changes, and submit a pull request. Ensure all tests pass before submitting.
+Contributions are welcome! Please fork the repository, create a new branch for your changes, and submit a pull request. 
+If possible, ensure all tests pass before submitting.
 
 ---
 

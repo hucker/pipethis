@@ -1,3 +1,4 @@
+import pathlib
 import pytest
 # noinspection PyProtectedMember
 from pipethis._streamitem import LineStreamItem
@@ -63,6 +64,21 @@ def test_valid_lineinfo(sequence_id, resource_name, line):
     lineinfo = LineStreamItem(sequence_id=sequence_id, resource_name=resource_name, data=line)
     assert lineinfo.sequence_id == sequence_id
     assert lineinfo.resource_name == resource_name
+    assert lineinfo.data == line
+
+@pytest.mark.parametrize(
+    "sequence_id, resource_name, line, expected_resource_name",
+    [
+        (1, pathlib.Path("/example/path/to/test.txt"), "Content of the line", "test.txt"),  # Path object
+        (42, pathlib.Path("data.csv"), "", "data.csv"),  # Relative path
+        (100, pathlib.Path("dir/subdir/file.py"), "Python code example", "file.py"),  # Nested relative path
+    ],
+)
+def test_valid_lineinfo_with_path(sequence_id, resource_name, line, expected_resource_name):
+    """Test that valid LineStreamItem objects can be created with Path objects as resource_name."""
+    lineinfo = LineStreamItem(sequence_id=sequence_id, resource_name=resource_name, data=line)
+    assert lineinfo.sequence_id == sequence_id
+    assert lineinfo.resource_name == expected_resource_name  # Ensure only file name and extension
     assert lineinfo.data == line
 
 

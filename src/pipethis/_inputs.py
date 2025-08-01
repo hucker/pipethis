@@ -49,12 +49,41 @@ class FromFile(InputBase):
 
     def stream(self):
         """
-        Generate a stream of `StreamItem`s from the file by delegating
-        the functionality to the appropriate file_handler class.
-        """
+        Stream items from the file by delegating to the appropriate file_handler's `stream` method.
 
-        # Use `yield from` to directly delegate to the handler_instance's stream
-        yield from self.file_handler.stream()
+        This method can be used both within and outside of a context manager. If used outside,
+        the file handler will be automatically initialized and cleaned up.
+
+        Yields:
+            LineStreamItem instances representing each line from the file.
+        """
+        # Check if the file handler is already initialized (via a context manager)
+        handler_initialized = self._file_handler_instance is not None
+
+        if handler_initialized:
+            # If already initialized, just stream from the file handler
+            yield from self.file_handler.stream()
+        else:
+            # If not initialized, use a context manager to open it temporarily
+            with self.file_handler as temp_handler:
+                self._file_handler_instance = temp_handler
+                yield from temp_handler.stream()
+
+    def __enter__(self):
+        """
+        Delegate context setup to the file_handler instance.
+        """
+        self._file_handler_instance = self.file_handler.__enter__()
+        return self._file_handler_instance
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Delegate context teardown to the file_handler instance.
+        """
+        if self._file_handler_instance:
+            self._file_handler_instance.__exit__(exc_type, exc_value, traceback)
+            self._file_handler_instance = None
+
 
     @property
     def file_handler(self)->FileHandlerBase:
@@ -290,7 +319,7 @@ class FromFolder:
             if not self._should_include(file_path):
                 continue
 
-            with FromFile(filepath=file_path, handler=self.file_handler).file_handler as from_file:
+            with FromFile(filepath=file_path, handler=self.file_handler) as from_file:
                 yield from from_file.stream()
 
     def _should_include(self, file_path: Path) -> bool:
@@ -459,7 +488,7 @@ class FromGlob:
                 if self._should_keep(file_path.name):
                     # Use context management for FromFile to handle resources
                     with FromFile(filepath=file_path,
-                                  handler=self.file_handler).file_handler as from_file:
+                                  handler=self.file_handler) as from_file:
                         yield from from_file.stream()
 
 

@@ -140,61 +140,6 @@ def reset_handlers():
     FromFile.clear_registered_handlers()
 
 
-def test_from_string_empty_input():
-    """Test `FromString` with an empty string."""
-    text = ""
-    from_string = FromString(text)
-    results = list(from_string.stream())
-
-    assert len(results) == 1
-    assert results[0].sequence_id == 1
-    assert results[0].data == ""
-    assert results[0].resource_name == "text"
-
-
-def test_from_string_custom_separator():
-    """Test `FromString` with a custom separator."""
-    text = "Item1||Item2||Item3"
-    from_string = FromString(text, separator="||")
-    results = list(from_string.stream())
-
-    assert len(results) == 3
-
-    assert results[0].sequence_id == 1
-    assert results[0].data == "Item1"
-    assert results[1].sequence_id == 2
-    assert results[1].data == "Item2"
-    assert results[2].sequence_id == 3
-    assert results[2].data == "Item3"
-
-def test_from_string_single_line():
-    """Test `FromString` with a single-line input."""
-    text = "This is a single-line test."
-    from_string = FromString(text)
-    results = list(from_string.stream())
-
-    assert len(results) == 1
-    assert results[0].sequence_id == 1
-    assert results[0].data == "This is a single-line test."
-    assert results[0].resource_name == "text"
-
-def test_from_string_trailing_and_leading_separators():
-    """Test `FromString` with leading and trailing separators."""
-    text = "\nLine1\nLine2\nLine3\n"
-    from_string = FromString(text)
-    results = list(from_string.stream())
-
-    assert len(results) == 5
-    assert results[0].sequence_id == 1
-    assert results[0].data == ""  # Leading separator
-    assert results[1].sequence_id == 2
-    assert results[1].data == "Line1"
-    assert results[2].sequence_id == 3
-    assert results[2].data == "Line2"
-    assert results[3].sequence_id == 4
-    assert results[3].data == "Line3"
-    assert results[4].sequence_id == 5
-    assert results[4].data == ""  # Trailing separator
 
 
 
@@ -208,27 +153,9 @@ def sample_file(tmp_path):
     return file_path
 
 
-
-
-def test_from_strings_single_line_multi():
-    """Test `FromString` with a single-line input."""
-    lines = ["This is a single-line test.","foo"]
-    from_strings = FromStrings(lines,separator='\n',name="text")
-    results = list(from_strings.stream())
-
-    assert len(results) == 2
-    assert results[0].sequence_id == 1
-    assert results[0].data == "This is a single-line test."
-    assert results[0].resource_name == "text-1"
-
-    assert results[1].sequence_id == 1
-    assert results[1].data == "foo"
-    assert results[1].resource_name == "text-2"
-
-
-def test_from_file_basic(sample_file):
+def test_from_file_context_manager(sample_file):
     """Test `FromFile` with a basic file."""
-    with FromFile(sample_file, handler=TextFileHandler).file_handler as from_file:
+    with FromFile(sample_file, handler=TextFileHandler) as from_file:
         results = list(from_file.stream())
 
     assert len(results) == 4  # File has 4 lines
@@ -249,17 +176,29 @@ def test_from_file_basic(sample_file):
     assert results[3].resource_name == str(sample_file)
     assert results[3].data == "Line 4"
 
+def test_from_file_stream(sample_file):
+    """Test `FromFile` stream without a context manager."""
 
-def test_from_file_empty_file(tmp_path):
-    """Test `FromFile` with an empty file."""
-    empty_file = tmp_path / "empty_file.txt"
-    empty_file.write_text("")  # Create an empty file
+    ff = FromFile(sample_file, handler=TextFileHandler)
+    results = list(ff.stream())
 
-    with FromFile(empty_file).file_handler as from_file:
-        results = list(from_file.stream())
+    assert len(results) == 4  # File has 4 lines
 
-    assert len(results) == 0  # There should be no lines
+    assert results[0].sequence_id == 1
+    assert results[0].resource_name == str(sample_file)
+    assert results[0].data == "Hello"
 
+    assert results[1].sequence_id == 2
+    assert results[1].resource_name == str(sample_file)
+    assert results[1].data == "World"
+
+    assert results[2].sequence_id == 3
+    assert results[2].resource_name == str(sample_file)
+    assert results[2].data == "This is a test"
+
+    assert results[3].sequence_id == 4
+    assert results[3].resource_name == str(sample_file)
+    assert results[3].data == "Line 4"
 
 def test_from_file_file_with_trailing_newlines(tmp_path):
     """Test `FromFile` with a file that has trailing newlines."""
@@ -267,7 +206,7 @@ def test_from_file_file_with_trailing_newlines(tmp_path):
     content = "Line 1\nLine 2\n\n"
     file_with_trailing_newlines.write_text(content)
 
-    with FromFile(file_with_trailing_newlines).file_handler as from_file:
+    with FromFile(file_with_trailing_newlines) as from_file:
         results = list(from_file.stream())
 
     assert len(results) == 3  # Two lines with content, one blank line
@@ -288,7 +227,7 @@ def test_from_file_unicode_handling(tmp_path):
     content = "Héllo\nWörld\n你好\nこんにちは\n"
     unicode_file.write_text(content, encoding="utf-8")
 
-    with FromFile(unicode_file).file_handler as from_file:
+    with FromFile(unicode_file) as from_file:
         results = list(from_file.stream())
 
     assert len(results) == 4
@@ -305,15 +244,7 @@ def test_from_file_unicode_handling(tmp_path):
     assert results[3].sequence_id == 4
     assert results[3].data == "こんにちは"
 
-def test_from_strings_single_string_input():
-    """Test that a single string passed to FromStrings is wrapped in a list."""
-    single_line = "This is a single string"
 
-    # Instantiate with a single string
-    from_strings_instance = FromStrings(lines=single_line)
-
-    # Assert the lines are correctly wrapped into a list
-    assert from_strings_instance.lines == [single_line]
 
 def test_from_folder_conflicting_filters():
     """Test that a ValueError is raised when conflicting filters are set."""
@@ -360,7 +291,7 @@ def test_from_file_empty_file(tmp_path):
     empty_file.write_text("")  # Create an empty file
 
     # Test using the file handler within a context manager
-    with FromFile(empty_file).file_handler as from_file:
+    with FromFile(empty_file) as from_file:
         # Get all streamed items
         result = list(from_file.stream())
         assert len(result) == 0
@@ -412,7 +343,7 @@ def test_decorator_register_handler(tmp_path):
     assert from_file_instance.file_handler.file_path == test_file
 
     # Use the resolved handler within the context manager
-    with from_file_instance.file_handler as handler:
+    with from_file_instance as handler:
         assert isinstance(handler, LogFileHandler)
         assert handler.file_path == test_file
 

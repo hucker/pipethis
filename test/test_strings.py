@@ -62,8 +62,12 @@ def test_from_strings_with_context_manager():
     lines = ["Item1", "Item2", "Item3"]
     with FromStrings(name="ctx_test", lines=lines, separator="\n") as instance:
         assert instance  # Ensure instance is not None
-        actual_lines = [item.data for item in instance.stream()]
+        actual_items = [item for item in instance.stream()]
+        actual_lines = [item.data for item in actual_items]
         assert actual_lines == ["Item1", "Item2", "Item3"]
+        actual_names = {item.resource_name for item in actual_items}
+        assert len(actual_names) == 3
+        assert actual_names == {"ctx_test-1","ctx_test-2","ctx_test-3"}
 
 def test_from_strings_stream_with_trailing_empty_lines():
     """Test that trailing empty lines in FromStrings are handled correctly."""
