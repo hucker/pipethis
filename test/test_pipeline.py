@@ -54,8 +54,6 @@ def test_pipeline_with_meta_string_io():
 
 # Unit Tests
 def test_pipeline_operator_overloading():
-    # Create pipeline
-    pipeline = Pipeline()
 
     # Create instances of the components
     from_string = FromString(text="foo")
@@ -63,7 +61,7 @@ def test_pipeline_operator_overloading():
     to_string = ToString()
 
     # Build the pipeline
-    pipeline = pipeline | from_string | pass_through | to_string
+    pipeline =  from_string | pass_through | to_string
 
     # Verify the pipeline structure
     assert pipeline.inputs == [from_string], "Input not added correctly to the pipeline"
@@ -295,6 +293,32 @@ ERROR: database query failed"""
     assert len(result_lines) == 2
     assert "ERROR: could not connect to database" in result_lines
     assert "ERROR: database query failed" in result_lines
+
+def test_implicit_pipeline():
+    """
+    Verify that you can create a pipeline when the first item in a chain
+    is derived from InputBase.  This saves typing Pipeline() at the start
+    of all pipelines.
+    """
+
+    input_data = """ERROR: network timeout
+WARNING: disk space low
+ERROR: could not connect to database
+ERROR: invalid user credentials
+System running normally
+ERROR: database query failed"""
+
+    # Set up components for pipe operator construction
+    input_handler = FromString(input_data)
+    output_handler = ToString()
+    error_filter = RegexKeepFilter(r".*ERROR.*")
+    database_filter = RegexKeepFilter(r".*database.*")
+
+    # no manually created Pipeline() to start the pipeline
+    pipe_pipeline = input_handler | error_filter | database_filter | output_handler
+    result = pipe_pipeline.run()
+    assert output_handler.text_output == "ERROR: could not connect to database\nERROR: database query failed\n"
+
 
 def test_add_pipeline():
     pipeline1 = Pipeline() | FromString("foo")

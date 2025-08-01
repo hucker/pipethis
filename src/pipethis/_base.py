@@ -138,6 +138,19 @@ class InputBase(ABC):
         """
         raise NotImplementedError("Subclasses must implement 'stream'") # pragma: no cover
 
+    def __or__(self, other):
+        """
+        Overloads the '|' operator for Inputs to support chaining in pipelines.
+
+        Automatically creates a Pipeline instance if necessary and adds this
+        InputBase instance as the pipeline's input.
+        """
+        from ._pipeline import Pipeline
+
+        # Otherwise, create a new pipeline, add this input, and chain to "other"
+        new_pipeline = Pipeline()
+        new_pipeline.add_input(self)
+        return new_pipeline | other
 
 
 class TransformBase(ABC):

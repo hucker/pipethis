@@ -4,7 +4,7 @@ from pipethis import FromString, FromStrings
 def test_from_string_initialization():
     """Test initialization of FromString with valid inputs."""
     text = "Hello\nWorld\nPython"
-    instance = FromString(name="example", text=text, separator="\n")
+    instance = FromString(name="example", text=text, sep="\n")
     assert instance.name == "example"
     assert instance.text == text
     assert instance.sep == "\n"
@@ -13,7 +13,7 @@ def test_from_string_initialization():
 def test_from_string_stream():
     """Test the stream() method for streaming content."""
     text = "Line1\nLine2\nLine3"
-    instance = FromString(name="test", text=text, separator="\n")
+    instance = FromString(name="test", text=text, sep="\n")
     expected_lines = ["Line1", "Line2", "Line3"]
     actual_lines = [item.data for item in instance.stream()]
     assert actual_lines == expected_lines  # Assuming stream() yields lines
@@ -22,7 +22,7 @@ def test_from_string_stream():
 def test_from_string_context_manager():
     """Test FromString as a context manager."""
     text = "A\nB\nC"
-    with FromString(name="ctx", text=text, separator="\n") as instance:
+    with FromString(name="ctx", text=text, sep="\n") as instance:
         assert instance  # Ensure instance is not None
         actual_lines = [item.data for item in instance.stream()]
         assert actual_lines == ["A", "B", "C"]
@@ -30,7 +30,7 @@ def test_from_string_context_manager():
 def test_from_strings_initialization():
     """Test initialization of FromStrings with valid inputs."""
     lines = ["Hello", "World", "Python"]
-    instance = FromStrings(name="example", lines=lines, separator="\n")
+    instance = FromStrings(name="example", lines=lines, sep="\n")
     assert instance.name == "example"
     assert instance.lines == lines
     assert instance.sep == "\n"
@@ -38,7 +38,7 @@ def test_from_strings_initialization():
 def test_from_strings_empty_lines():
     """Test that FromStrings initializes correctly with an empty lines input."""
     lines = []
-    instance = FromStrings(name="empty", lines=lines, separator="\n")
+    instance = FromStrings(name="empty", lines=lines, sep="\n")
     assert instance.name == "empty"
     assert instance.lines == lines
     assert instance.sep == "\n"
@@ -49,7 +49,7 @@ def test_from_strings_empty_lines():
 def test_from_strings_stream():
     """Test the stream() method for streaming content from FromStrings."""
     lines = ["Line1", "Line2", "Line3"]
-    instance = FromStrings(name="test", lines=lines, separator="\n")
+    instance = FromStrings(name="test", lines=lines, sep="\n")
     expected_lines = ["Line1", "Line2", "Line3"]
 
     # Extract data from StreamItem instances in the stream
@@ -60,7 +60,7 @@ def test_from_strings_stream():
 def test_from_strings_with_context_manager():
     """Test FromStrings as a context manager."""
     lines = ["Item1", "Item2", "Item3"]
-    with FromStrings(name="ctx_test", lines=lines, separator="\n") as instance:
+    with FromStrings(name="ctx_test", lines=lines, sep="\n") as instance:
         assert instance  # Ensure instance is not None
         actual_items = [item for item in instance.stream()]
         actual_lines = [item.data for item in actual_items]
@@ -72,7 +72,7 @@ def test_from_strings_with_context_manager():
 def test_from_strings_stream_with_trailing_empty_lines():
     """Test that trailing empty lines in FromStrings are handled correctly."""
     lines = ["First line", "Second line", ""]
-    instance = FromStrings(name="with_empty", lines=lines, separator="\n")
+    instance = FromStrings(name="with_empty", lines=lines, sep="\n")
     expected_lines = ["First line", "Second line", ""]
 
     # Extract data from StreamItem instances in the stream
@@ -83,9 +83,9 @@ def test_from_strings_stream_with_trailing_empty_lines():
 
 
 @pytest.mark.parametrize(
-    "lines, separator, expected_data",
+    "lines, sep, expected_data",
     [
-        # Case 1: Input lines with no separator present
+        # Case 1: Input lines with no sep present
         (["A-B-C"], "-", ["A", "B", "C"]),
 
         # Case 2: Multiple lines with no separators in some
@@ -103,7 +103,7 @@ def test_from_strings_stream_with_trailing_empty_lines():
         # Case 6: Leading and trailing separators
         (["|Start|Middle|End|"], "|", ["", "Start", "Middle", "End", ""]),
 
-        # Case 7: A line with no separator present
+        # Case 7: A line with no sep present
         (["SingleLine"], ",", ["SingleLine"]),
 
         # Case 8: Completely empty input
@@ -116,10 +116,10 @@ def test_from_strings_stream_with_trailing_empty_lines():
         (["", "Start|Middle|End", ""], "|", ["", "Start", "Middle", "End", ""]),
     ]
 )
-def test_from_strings_stream_splitting(lines, separator, expected_data):
-    """Test FromStrings.stream with different separator use cases."""
-    # Initialize the FromStrings class with name, lines, and separator
-    instance = FromStrings(name="param_test", lines=lines, separator=separator)
+def test_from_strings_stream_splitting(lines, sep, expected_data):
+    """Test FromStrings.stream with different sep use cases."""
+    # Initialize the FromStrings class with name, lines, and sep
+    instance = FromStrings(name="param_test", lines=lines, sep=sep)
 
     # Collect the actual data from the stream
     actual_data = [item.data for item in instance.stream()]

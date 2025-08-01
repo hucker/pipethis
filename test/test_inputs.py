@@ -42,7 +42,7 @@ def test_from_string_basic():
 def test_from_strings_single_line():
     """Test `FromString` with a single-line input."""
     lines = ["This is a single-line test."]
-    from_strings = FromStrings(lines,separator='\n',name="text")
+    from_strings = FromStrings(lines,sep='\n',name="text")
     results = list(from_strings.stream())
 
     assert len(results) == 1
@@ -52,7 +52,7 @@ def test_from_strings_single_line():
 def test_from_string_list():
     """Test `FromString` with a single-line input."""
     lines = ["This is the first line.","This is the next line"]
-    from_strings = FromStrings(lines,separator='\n',name="text")
+    from_strings = FromStrings(lines,sep='\n',name="text")
     results = list(from_strings.stream())
 
     assert len(results) == 2
@@ -65,7 +65,7 @@ def test_from_string_list():
 def test_from_string_list_double_line():
     """Test `FromString` with a multi line multi input."""
     lines = ["This is the\nfirst line.","This is the\nnext line"]
-    from_strings = FromStrings(lines,separator='\n',name="text")
+    from_strings = FromStrings(lines,sep='\n',name="text")
     results = list(from_strings.stream())
 
     assert len(results) == 4
@@ -119,7 +119,7 @@ def test_from_string_list_double_line():
 def test_from_strings(lines, expected_results):
     """Test `FromStrings` with various input cases including null/empty strings."""
 
-    from_strings = FromStrings(lines, separator='\n', name="text")
+    from_strings = FromStrings(lines, sep='\n', name="text")
     results = list(from_strings.stream())
 
     # Assert that the length of the results matches the expected results length
@@ -263,7 +263,7 @@ def test_from_strings_context_manager_and_iteration():
     lines = ["This is a test.", "Another example line."]
     separator = " "
 
-    with FromStrings(lines, separator=separator, name="test") as fs:
+    with FromStrings(lines, sep=separator, name="test") as fs:
         # Collect all items from the stream
         streamed_results = list(fs.stream())
 

@@ -14,9 +14,9 @@ def test_from_string_empty_input():
 
 
 def test_from_string_custom_separator():
-    """Test `FromString` with a custom separator."""
+    """Test `FromString` with a custom sep."""
     text = "Item1||Item2||Item3"
-    from_string = FromString(text, separator="||")
+    from_string = FromString(text, sep="||")
     results = list(from_string.stream())
 
     assert len(results) == 3
@@ -47,7 +47,7 @@ def test_from_string_trailing_and_leading_separators():
 
     assert len(results) == 5
     assert results[0].sequence_id == 1
-    assert results[0].data == ""  # Leading separator
+    assert results[0].data == ""  # Leading sep
     assert results[1].sequence_id == 2
     assert results[1].data == "Line1"
     assert results[2].sequence_id == 3
@@ -55,13 +55,13 @@ def test_from_string_trailing_and_leading_separators():
     assert results[3].sequence_id == 4
     assert results[3].data == "Line3"
     assert results[4].sequence_id == 5
-    assert results[4].data == ""  # Trailing separator
+    assert results[4].data == ""  # Trailing sep
 
 
 def test_from_strings_single_line_multi():
     """Test `FromString` with a single-line input."""
     lines = ["This is a single-line test.","foo"]
-    from_strings = FromStrings(lines,separator='\n',name="text")
+    from_strings = FromStrings(lines,sep='\n',name="text")
     results = list(from_strings.stream())
 
     assert len(results) == 2

@@ -173,15 +173,16 @@ class ToStdErr(OutputBase):
 
 ---
 
-## Advanced Usage
+## Pipeline Usage
 
 ### Pipeline Execution
-Pipelines can be built incrementally and executed using the `run()` method:
+Pipelines can be built incrementally by creating by OR'ing together input, transform
+and output objects.
+
 ```python
 from pipethis import Pipeline, FromString, UpperCase, ToFile
 
-pipeline = (Pipeline() 
-           | FromString("data pipeline\nexample code")  
+pipeline = (FromString("data pipeline\nexample code")  
            | UpperCase() 
            | ToFile("output.txt"))
 pipeline.run()
@@ -192,13 +193,35 @@ Use `try/except` blocks to handle exceptions during pipeline execution:
 ```python
 from pipethis import Pipeline, FromString, UpperCase, ToFile
 try:
-   pipeline = (Pipeline() 
-               | FromString("data pipeline\nexample code") 
+   pipeline = (FromString("data pipeline\nexample code") 
                | UpperCase() 
                | ToFile("output.txt"))
    pipeline.run()
 except IOError as iox:
    print(f"Unexpected error {iox}")
+```
+
+### More complete example
+The following example takes files and folders from several locations, filters for
+log file Errors
+
+```python
+from pipethis import FromFile, FromFolder, FromGlob, RegexKeepFilter, ToFile, ToStdOut, Pipeline
+
+def advanced_pipeline():
+    # Define the pipeline
+    pipeline = (FromFile("path/to/log_file.log")
+                | FromFolder("path/to/logs_folder",keep_patterns="*.log")
+                | FromGlob("path/to/more/logs",keep_patterns ="*.log")
+                | RegexKeepFilter(r"ERROR")
+                | RegexKeepFilter(r"database")
+                | ToFile("filtered_logs.txt")
+                | ToStdOut() 
+                )
+
+    # Run the pipeline. duh
+    pipeline.run()
+
 ```
 
 ---

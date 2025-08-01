@@ -34,7 +34,7 @@ class FromFile(InputBase):
     # Registry mapping extensions to file_handler classes
     _HANDLER_MAP: dict[str, type[FileHandlerBase]] = {}
 
-    def __init__(self, filepath: str, handler: type[FileHandlerBase] = None):
+    def __init__(self, filepath: str|Path, handler: type[FileHandlerBase] = None):
         """
         Initialize a FromFile object with the provided file path and optional handler.
 
@@ -413,7 +413,8 @@ class FromGlob:
             raise ValueError(msg)
 
         if not self.folder_path.exists():
-            raise ValueError(f"Glob folder_path {self.folder_path} does not exist.")
+            msg = f"Glob folder_path {self.folder_path} does not exist."
+            raise ValueError(msg)
 
     def __enter__(self):
         """
@@ -424,8 +425,7 @@ class FromGlob:
 
     def __exit__(self, exc_type, exc_value, traceback):
         """
-        Exit the context. Nothing needs to be closed since this is really a container
-        for code that processes a bunch of files.
+        Exit the context. Nothing needs to be closed or cleaned up.
         """
 
 
@@ -518,7 +518,7 @@ class FromString(InputBase):
     """
     Stream the input string as `LineStreamItem` objects.
 
-    This method splits the provided string into smaller chunks using the specified separator
+    This method splits the provided string into smaller chunks using the specified sep
     and associates each chunk with a sequence ID and a resource name. Each chunk is yielded
     as a `LineStreamItem` object.
 
@@ -528,7 +528,7 @@ class FromString(InputBase):
 
     Example:
         >>> text = "line1,line2,line3"
-        >>> from_string = FromString(text, separator=",", name="example")
+        >>> from_string = FromString(text, sep=",", name="example")
         >>> for item in from_string.stream():
         ...     print(item.sequence_id, item.data)
         1 line1
@@ -536,7 +536,7 @@ class FromString(InputBase):
         3 line3
     """
 
-    def __init__(self, text: str, separator='\n', name='text'):
+    def __init__(self, text: str, sep='\n', name='text'):
         """
         Initialize the FromString instance.
 
@@ -547,7 +547,7 @@ class FromString(InputBase):
         """
         self.name = name
         self.text = text
-        self.sep = separator
+        self.sep = sep
 
     def __enter__(self):
         """
@@ -563,7 +563,7 @@ class FromString(InputBase):
         """
 
     def stream(self) -> Iterable[LineStreamItem]:
-        """Stream lines split by the specified separator."""
+        """Stream lines split by the specified sep."""
         for line_number, data in enumerate(self.text.split(self.sep), start=1):
             yield LineStreamItem(sequence_id=line_number, resource_name=self.name, data=data)
 
@@ -571,7 +571,7 @@ class FromString(InputBase):
 class FromStrings(InputBase):
     """
     A class to handle the streaming of multiple input strings, splitting each string
-    into smaller chunks based on a specified separator, and yielding them as
+    into smaller chunks based on a specified sep, and yielding them as
     `LineStreamItem` objects.
 
     This class serves as an abstraction for processing multiple strings or a single string,
@@ -582,17 +582,17 @@ class FromStrings(InputBase):
         name (str): A name identifier for the resource, included in each `LineStreamItem`.
         lines (list[str]): A list of input strings to process. If a single string is provided,
             it will be converted into a list containing that string.
-        sep (str): The separator used to split each string into smaller chunks. Defaults to '\n'.
+        sep (str): The sep used to split each string into smaller chunks. Defaults to '\n'.
     """
 
-    def __init__(self, lines: list[str] | str, separator: str = '\n', name: str = 'text'):
+    def __init__(self, lines: list[str] | str, sep: str = '\n', name: str = 'text'):
         """
         Initialize the FromStrings instance.
 
         Args:
             lines (list[str] | str): A list of strings or a single string to be processed.
                                      If a single string is provided, it will be wrapped in a list.
-            separator (str, optional): The separator used to split the strings. Defaults to '\n'.
+            sep (str, optional): The separator used to split the strings. Defaults to '\n'.
             name (str, optional): A unique name for the resource, used in the `LineStreamItem`.
                                   Defaults to 'text'.
         """
@@ -601,7 +601,7 @@ class FromStrings(InputBase):
 
         self.name = name
         self.lines = lines
-        self.sep = separator
+        self.sep = sep
 
     def __enter__(self):
         """
@@ -630,7 +630,7 @@ class FromStrings(InputBase):
         Stream the processed strings as `LineStreamItem` objects.
 
         This method iterates over the input strings, splitting each string into smaller chunks
-        based on the provided separator. Each chunk is yielded as an instance of `LineStreamItem`.
+        based on the provided sep. Each chunk is yielded as an instance of `LineStreamItem`.
         The `sequence_id` of the `LineStreamItem` corresponds to the chunk's position in the
         original string, and the `resource_name` is augmented with an identifier for each
         input string.
@@ -640,7 +640,7 @@ class FromStrings(InputBase):
 
         Example:
             >>> lines = ["This is a test.", "Another example line."]
-            >>> from_strings = FromStrings(lines, separator=' ', name='test')
+            >>> from_strings = FromStrings(lines, sep=' ', name='test')
             >>> for item in from_strings.stream():
             ...     print(item.sequence_id, item.data)
             1 This
@@ -653,5 +653,5 @@ class FromStrings(InputBase):
         """
         for id_, line in enumerate(self.lines, start=1):
             # Use the generator returned by FromString to handle separation and streaming
-            from_string = FromString(line, separator=self.sep, name=f"{self.name}-{id_}").stream()
+            from_string = FromString(line, sep=self.sep, name=f"{self.name}-{id_}").stream()
             yield from from_string

@@ -38,7 +38,8 @@ class LineStreamItem(StreamItem):
     def validate(self):
         # Validate `data` specific to `LineStreamItem`
         if not isinstance(self.data, str):
-            raise ValueError("Data must be a string for LineStreamItem")
+            msg = "Data must be a string for LineStreamItem"
+            raise ValueError(msg)
 
 
 @dataclasses.dataclass
@@ -56,4 +57,5 @@ class ImageStreamItem(StreamItem):
     def validate(self):
         """Validate that data is an instance of PIL.Image.Image."""
         if not isinstance(self.data, Image.Image):
-            raise ValueError("Data must be an instance of PIL.Image.Image for ImageStreamItem")
+            msg = "Data must be an instance of PIL.Image.Image for ImageStreamItem"
+            raise ValueError(msg)
