@@ -1,3 +1,18 @@
+"""
+This module contains input components for the data pipeline.
+
+The classes in this module provide different ways to stream data into the pipeline, such as:
+- `FromFile`: Streams data from a file with various handlers.
+- `FromFolder`: Streams data from files in a folder, with options to filter files by patterns.
+- `FromGlob`: Streams data by matching file paths using glob patterns.
+- `FromString`: Streams data from a string.
+- `FromStrings`: Streams data from multiple strings.
+
+These classes extend the base functionality and provide flexibility in defining
+different input sources for the pipeline.
+"""
+
+
 import os
 from fnmatch import fnmatch
 from pathlib import Path
@@ -9,6 +24,13 @@ from ._streamitem import LineStreamItem
 
 
 class FromFile(InputBase):
+    """
+    Reads data from a single file using a specified handler.
+
+    Attributes:
+        filepath (str): Path to the file to be read.
+        _handler (str): The name of the handler used to read the file.
+    """
     # Registry mapping extensions to file_handler classes
     _HANDLER_MAP: dict[str, type[FileHandlerBase]] = {}
 
@@ -52,7 +74,9 @@ class FromFile(InputBase):
         self._file_handler_instance = handler_class(self.filepath)
         return self._file_handler_instance
 
-    def _get_handler(self, filepath: Path, handler: type[FileHandlerBase] | None) -> type[FileHandlerBase]:
+    def _get_handler(self,
+                     filepath: Path,
+                     handler: type[FileHandlerBase] | None) -> type[FileHandlerBase]:
         """
         Choose the appropriate file_handler, either custom or from the registry.
 
@@ -107,7 +131,8 @@ class FromFile(InputBase):
         """
         # Validate and normalize the extension pattern
         if not extension_pattern.startswith("."):
-            raise ValueError(f"Invalid extension pattern '{extension_pattern}'. Must start with '.'.")
+            msg = f"Invalid extension pattern '{extension_pattern}'. Must start with '.'."
+            raise ValueError(msg)
 
         extension = extension_pattern.lower()
 
@@ -120,8 +145,8 @@ class FromFile(InputBase):
                         f"Handler for extension '{extension}' is already registered. "
                         f"Use force=True to overwrite."
                     )
-                else:
-                    print(f"Overwriting existing handler for extension '{extension}'...")
+
+                print(f"Overwriting existing handler for extension '{extension}'...")
 
             # Register or overwrite the handler
             cls._HANDLER_MAP[extension] = handler_class
@@ -154,6 +179,29 @@ class FromFile(InputBase):
 
 
 class FromFolder:
+    """
+    Reads and processes data from files in a folder, with support for file filtering
+    based on inclusion or exclusion patterns.
+
+    This class is part of the pipeline's input components. It iterates through files
+    in a specified folder, dynamically applying handlers to process each file.
+
+    Features:
+    - Filters files using `keep_patterns` (inclusion patterns) or `ignore_patterns`
+      (exclusion patterns).
+    - Supports custom file handlers to process specific file formats.
+
+    Attributes:
+        folder_path (Path): Path to the folder containing files to be processed.
+        file_handler (Type[FileHandlerBase]): The file handler class used to process files.
+                                              Defaults to `TextFileHandler` if not specified.
+        keep_patterns (list[str]): Inclusion patterns for filtering (e.g., ['*.txt', '*.py']).
+        ignore_patterns (list[str]): Exclusion patterns for filtering (e.g., ['*.log', '*.tmp']).
+
+    Raises:
+        ValueError: If both `keep_patterns` and `ignore_patterns` are provided simultaneously.
+    """
+
     def __init__(
             self,
             folder_path: Path,
@@ -162,17 +210,25 @@ class FromFolder:
             ignore_patterns: list[str] | None = None,
     ):
         """
-        Initializes the FromFolder class. The default file_handler is the text file file_handler.
+        Initializes the `FromFolder` instance.
+
+        This method sets up the folder path, file handler, and optional file filtering
+        patterns for processing files in a directory. If no file handler is explicitly
+        provided, the default `TextFileHandler` is used.
 
         Args:
-            folder_path (Path): Path to the folder containing files.
-            file_handler (Type[FileHandlerBase] | None): A custom file_handler class to process all files.
-                                                   If None, the file_handler is determined via FromFile's registry.
-            keep_patterns (list[str] | None): A list of file extensions to include (e.g., ['.txt', '.py']).
-            ignore_patterns (list[str] | None): A list of file extensions to exclude (e.g., ['.log', '.tmp']).
+            folder_path (Path): Path to the folder containing files to process.
+            file_handler (Type[FileHandlerBase] | None): Custom file handler class for processing
+                                                         files.  Defaults to `TextFileHandler`.
+            keep_patterns (list[str] | None): List of inclusion patterns for filtering files.
+                                              Only files matching these patterns will be processed.
+                                              Examples: ['*.txt', '*.csv'].
+            ignore_patterns (list[str] | None): List of exclusion patterns for filtering files.
+                                                Files matching these patterns will be ignored.
+                                                Examples: ['*.log', '*.tmp'].
 
         Raises:
-            ValueError: If both `keep_patterns` and `ignore_patterns` are provided.
+            ValueError: If both `keep_patterns` and `ignore_patterns` are provided simultaneously.
         """
         self.folder_path = folder_path
         self.file_handler = file_handler or TextFileHandler
@@ -181,52 +237,103 @@ class FromFolder:
 
         # Validate that both lists are not simultaneously set
         if self.keep_patterns and self.ignore_patterns:
-            raise ValueError("You can specify either keep_patterns or ignore_patterns, but not both.")
+            msg = "You can specify either keep_patterns or ignore_patterns, but not both."
+            raise ValueError(msg)
 
     def __enter__(self):
         """
-        Enter the context. No real resource is acquired, but this makes
-        FromString interchangeable with FromFile in context managers.
-        """
+        Enter the context for file handling.
 
+        This method allows `FromFolder` objects to be used as part of a context
+        manager. While no real resource acquisition is required in this class,
+        it enables seamless interoperability within pipeline code that uses context management.
+
+        Returns:
+            FromFolder: The current `FromFolder` instance.
+        """
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         """
-        Exit the context. Nothing needs to be closed since this is really a container
-        for code that processes a bunch of files.
+        Exit the context for file handling.
+
+        Cleans up resources upon exiting the context. Since this class does not
+        require explicit resource management, this method simply facilitates uniform
+        behavior across pipeline components using context managers.
+
+        Args:
+            exc_type (type): Exception type, if raised within the context.
+            exc_value (Exception): Exception instance, if raised within the context.
+            traceback (Traceback): Traceback object, if an exception is raised.
         """
-        pass
+
 
     def stream(self):
-        # Iterate through files and dynamically create file handlers
+        """
+        Stream data from files in the folder.
+
+        Iterates through the files in the specified folder, dynamically applying the
+        file handler to each file. Files are filtered based on the inclusion or exclusion
+        patterns, if specified. The resulting stream items are yielded one by one.
+
+        Yields:
+            StreamItem: A stream item generated by the dynamically applied file handler.
+
+        Example Usage:
+            ```python
+            folder = Path("/path/to/folder")
+            for item in FromFolder(folder).stream():
+                print(item)
+            ```
+        """
         for file_path in self.folder_path.iterdir():
             if not self._should_include(file_path):
                 continue
 
-            # Use context management for FromFile to handle resources
             with FromFile(filepath=file_path, handler=self.file_handler).file_handler as from_file:
                 yield from from_file.stream()
 
-    def _should_include(self, file_path):
+    def _should_include(self, file_path: Path) -> bool:
+        """
+        Determine whether a file should be included in the processing.
+
+        This private helper method checks the inclusion (`keep_patterns`) and
+        exclusion (`ignore_patterns`) patterns to decide whether the given file
+        is eligible for processing.
+
+        Files and folders are evaluated in the following sequence:
+        1. Directories are automatically excluded.
+        2. Files are included based on `keep_patterns` if specified.
+        3. Files matching `ignore_patterns` are excluded if specified.
+
+        Args:
+            file_path (Path): The path of the file to evaluate.
+
+        Returns:
+            bool: True if the file should be included; False otherwise.
+        """
         # Skip directories
         if file_path.is_dir():
             return False
 
         # Check keep_patterns (if specified)
         if self.keep_patterns:
-            if not any(file_path.match(ext) for ext in self.keep_patterns):
+            if not any(file_path.match(pattern) for pattern in self.keep_patterns):
                 return False
 
         # Check ignore_patterns (if specified)
         if self.ignore_patterns:
-            if any(file_path.match(ext) for ext in self.ignore_patterns):
+            if any(file_path.match(pattern) for pattern in self.ignore_patterns):
                 return False
 
         return True
 
 
 class FromGlob:
+    """
+    Reads data by matching file paths using glob patterns.
+    """
+
     def __init__(
             self,
             folder_path: Path | str,
@@ -242,9 +349,9 @@ class FromGlob:
         Globbing is a pattern-matching technique that resembles Unix shell-style
         wildcards. Supported patterns include:
         - `*` matches none or any number of characters (e.g., "*.txt" matches any `.txt` file).
-        - `?` matches exactly one character (e.g., "file?.txt" matches "file1.txt" but not "file01.txt").
-        - `[...]` matches any single character in brackets (e.g., "file[123].txt" matches "file1.txt").
-        - Recursive wildcard matching (using `**`) matches files at any depth in the folder hierarchy.
+        - `?` matches 1 character (e.g., "file?.txt" matches "file1.txt" but not "file01.txt").
+        - `[...]` matches single character in brackets (e.g., "file[123].txt" matches "file1.txt").
+        - Recursive wildcard matching (using `**`) matches files at any depth in the folder.
 
         Args:
             folder_path (Path | str): The root directory to search for files.
@@ -273,7 +380,8 @@ class FromGlob:
 
         # Validate that both lists are not simultaneously set
         if self.keep_patterns and self.ignore_patterns:
-            raise ValueError("You can specify either keep_patterns or ignore_patterns, but not both.")
+            msg = "You can specify either keep_patterns or ignore_patterns, but not both."
+            raise ValueError(msg)
 
         if not self.folder_path.exists():
             raise ValueError(f"Glob folder_path {self.folder_path} does not exist.")
@@ -290,7 +398,7 @@ class FromGlob:
         Exit the context. Nothing needs to be closed since this is really a container
         for code that processes a bunch of files.
         """
-        pass
+
 
     def stream(self) -> Iterable[Path]:
         """
@@ -313,8 +421,8 @@ class FromGlob:
             - If neither `keep_patterns` nor `ignore_patterns` is provided, all files are included.
 
             Yields:
-                Path: Paths to files that satisfy the filtering rules, using the specified file handler
-                (if provided) to process streamed data.
+                Path: Paths to files that satisfy the filtering rules, using the specified file
+                handler (if provided) to process streamed data.
 
             Examples:
                 1. Include `.txt` files, but ignore `.tmp` files:
@@ -324,8 +432,8 @@ class FromGlob:
                     [Path('/data/file1.txt'), Path('/data/file2.txt')]
 
                 2. Include all files in the folder, but skip logs and temporary files:
-                    >>> from_glob = FromGlob(folder_path="/data", ignore_patterns=["*.log", "*.tmp"])
-                    >>> list(from_glob.stream())
+                    >>> from = FromGlob(folder_path="/data", ignore_patterns=["*.log", "*.tmp"])
+                    >>> list(from.stream())
                     [Path('/data/file1.csv'), Path('/data/file2.json')]
 
                 3. Skip specific subfolders while processing `.csv` files:
@@ -338,8 +446,9 @@ class FromGlob:
 
         for root, dirs, files in os.walk(self.folder_path):
             # Modify the 'dirs' list in-place (since it is mutable) to exclude ignored folders.
-            # By using 'dirs[:]', we write into the original 'dirs' list that 'os.walk' uses internally.
-            # This ensures that the ignored folders are skipped during traversal in subsequent iterations.
+            # By using 'dirs[:]', we write into the original 'dirs' list that 'os.walk'
+            # uses internally. This ensures that the ignored folders are skipped during
+            # traversal in subsequent iterations.
             dirs[:] = [d for d in dirs if d not in self.ignore_folders]
 
             # Iterate through files in the remaining folders
@@ -349,7 +458,8 @@ class FromGlob:
                 # Apply the matching rules
                 if self._should_keep(file_path.name):
                     # Use context management for FromFile to handle resources
-                    with FromFile(filepath=file_path, handler=self.file_handler).file_handler as from_file:
+                    with FromFile(filepath=file_path,
+                                  handler=self.file_handler).file_handler as from_file:
                         yield from from_file.stream()
 
 
@@ -398,6 +508,14 @@ class FromString(InputBase):
     """
 
     def __init__(self, text: str, separator='\n', name='text'):
+        """
+        Initialize the FromString instance.
+
+        Args:
+            name (str): Name of the string source.
+            text (str): The string data to stream from.
+            sep (str, optional): Separator for splitting string into lines. Defaults to '\n'.
+        """
         self.name = name
         self.text = text
         self.sep = separator
@@ -414,7 +532,6 @@ class FromString(InputBase):
         Exit the context. Nothing needs to be closed, but this makes
         FromString compatible with context management.
         """
-        pass
 
     def stream(self) -> Iterable[LineStreamItem]:
         """Stream lines split by the specified separator."""
@@ -425,7 +542,8 @@ class FromString(InputBase):
 class FromStrings(InputBase):
     """
     A class to handle the streaming of multiple input strings, splitting each string
-    into smaller chunks based on a specified separator, and yielding them as `LineStreamItem` objects.
+    into smaller chunks based on a specified separator, and yielding them as
+    `LineStreamItem` objects.
 
     This class serves as an abstraction for processing multiple strings or a single string,
     allowing for efficient line-by-line streaming. It also supports context management,
@@ -477,7 +595,6 @@ class FromStrings(InputBase):
         to close. However, it is implemented to maintain compatibility with context
         management protocols.
         """
-        pass
 
     def stream(self) -> Iterable[LineStreamItem]:
         """
@@ -486,10 +603,11 @@ class FromStrings(InputBase):
         This method iterates over the input strings, splitting each string into smaller chunks
         based on the provided separator. Each chunk is yielded as an instance of `LineStreamItem`.
         The `sequence_id` of the `LineStreamItem` corresponds to the chunk's position in the
-        original string, and the `resource_name` is augmented with an identifier for each input string.
+        original string, and the `resource_name` is augmented with an identifier for each
+        input string.
 
         Yields:
-            LineStreamItem: An item representing a single chunk of text and its associated metadata.
+            LineStreamItem: An item representing a single chunk of text and associated metadata.
 
         Example:
             >>> lines = ["This is a test.", "Another example line."]

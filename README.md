@@ -1,8 +1,8 @@
 
 ## Overview
 
-Pipethis is an excercise in learning how to create objects that are composed using functions and general python
-operator overloading mechansims to andle simple pipelines.  While it has nearly 100% test coverage and is quite 
+Pipethis is an exercise in learning how to create objects that are composed using functions and general python
+operator overloading mechanisms to handle constructing pipelines.  While it has nearly 100% test coverage and is quite 
 flexible it is mostly a demonstration of basic program construction using Python.
 
 `pipethis` is a package designed to simplify the process of building, extending, and executing data pipelines.
@@ -13,18 +13,22 @@ integrate predefined components or implement their own. Whether you're processin
 or experimenting with streaming data, `pipethis` streamlines the process, making it easy to assemble 
 pipelines programmatically.
 
+Does it work?  Yeah, it has 99+% coverage and 9.95/10.0 lint, so it is in decent shape.  I have used it for 
+a few things, and it works, but YMMV.
 
 ### **1. Inputs**
 Inputs determine how data is ingested into the pipeline. The package provides several options, including:
 - `FromString`: Reads data from a Python string (largely for testing.)
 - `FromFile`: Reads data from a file.
-- `FromFolder`: Reads data from multiple files in a directory.
-- 'FromGlob': Reads multiple folders and calls from file for each item
+- `FromFolder`: Reads data from multiple files in a single directory.
+- `FromGlob`: Reads multiple folders and calls from file for each item
 
 The core concept if inputs is the notion of file handlers. File handlers are called on each file that is detected
 in the inputs.  Files generally are treated line by line (for things like text files) and file by file for things
 like images.  The handler classes stream method for standard text files is nothing more than yielding each line into
-a line stream item while keeping track of line numbers (which is very important for debugging)
+a line stream item while keeping track of line numbers (which is very important for debugging).  The package
+comes by default with code for text files showing line based data and "files" for binary data showing how to 
+stream images with the pillow library.
 
 ```python
  from pipethis._file_handler import FileHandlerBase
@@ -168,8 +172,38 @@ To test or modify the package locally:
 
 ---
 ## Testing
-The current implementation has > 95% test coverage.
 
+*LINT*
+```text
+------------------------------------------------------------------
+Your code has been rated at 9.95/10 (previous run: 9.95/10, +0.00)
+```
+
+*TOX*
+```text
+=============================================================================================================================================================================== 151 passed in 0.77s ===============================================================================================================================================================================
+  py313: OK (2.71=setup[1.72]+cmd[0.99] seconds)
+  py310: OK (2.58=setup[1.45]+cmd[1.13] seconds)
+  py311: OK (2.51=setup[1.48]+cmd[1.03] seconds)
+  py312: OK (7.16=setup[5.54]+cmd[1.62] seconds)
+  lint: OK (1.65=setup[0.68]+cmd[0.97] seconds)
+  congratulations :) (16.71 seconds)
+```
+
+*COVERAGE*
+```text
+Name                               Stmts   Miss  Cover
+------------------------------------------------------
+src/pipethis/__init__.py               8      0   100%
+src/pipethis/_base.py                 39      0   100%
+src/pipethis/_file_handler.py         21      0   100%
+src/pipethis/_image_transform.py      31      0   100%
+src/pipethis/_inputs.py              138      1    99%
+src/pipethis/_output.py               38      0   100%
+src/pipethis/_pipeline.py             51      0   100%
+src/pipethis/_streamitem.py           15      0   100%
+src/pipethis/_transform.py            47      0   100%
+```
 ---
 ## Contributions
 

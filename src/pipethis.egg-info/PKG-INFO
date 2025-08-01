@@ -4,3 +4,4 @@ Version: 0.1.0
 Summary: Add your description here
 Requires-Python: >=3.10
 Requires-Dist: pillow==11.3.0
+Requires-Dist: tox==4.28.4

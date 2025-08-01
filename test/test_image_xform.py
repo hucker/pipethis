@@ -80,7 +80,7 @@ def calculate_contrast(color, contrast_factor):
 
 # Test Mode Conversion
 def test_mode_conversion(stream_item_solid):
-    transformer = ImageEnhancerTransformer(transform_string="L")
+    transformer = ImageEnhancerTransformer(xform_str="L")
     transformed_item = transformer.transform(stream_item_solid)
 
     assert transformed_item.data.mode == "L"  # Ensure mode is grayscale
@@ -145,7 +145,7 @@ def test_sharpness_adjustment(stream_item_grayscale):
 def test_combined_transformations(stream_item_gradient):
     # Apply multiple enhancements together
     transformer = ImageEnhancerTransformer(
-        transform_string="L",  # Convert to grayscale
+        xform_str="L",  # Convert to grayscale
         brightness=1.2,  # Increase brightness
         contrast=1.5,  # Increase contrast
         saturation=1.0,  # Keep saturation (ignored for grayscale)
@@ -157,9 +157,9 @@ def test_combined_transformations(stream_item_gradient):
     assert transformed_item.data.size == stream_item_gradient.data.size  # Unchanged size
 
 def test_invalid_transform_string():
-    """Test that an invalid transform_string raises a ValueError."""
+    """Test that an invalid xform_str raises a ValueError."""
     with pytest.raises(ValueError, match="Invalid mode 'INVALID_MODE'.*"):
-        ImageEnhancerTransformer(transform_string="INVALID_MODE")  # Invalid mode
+        ImageEnhancerTransformer(xform_str="INVALID_MODE")  # Invalid mode
 
 def test_transform_invalid_input_type():
     """Test that passing a non-ImageStreamItem object raises a TypeError."""

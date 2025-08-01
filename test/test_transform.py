@@ -6,53 +6,53 @@ from pipethis._streamitem import LineStreamItem
 from pipethis._transform import SkipRepeatedBlankLines, UpperCase, LowerCase, AddMetaData,PassThrough
 
 @pytest.mark.parametrize(
-    "lineinfo, expected_line",
+    "item, expected_line",
     [
         (LineStreamItem(sequence_id=1, resource_name="ResourceA", data="hello world"), "HELLO WORLD"),
         (LineStreamItem(sequence_id=2, resource_name="ResourceB", data="PyTest"), "PYTEST"),
         (LineStreamItem(sequence_id=3, resource_name="ResourceC", data=""), ""),  # Empty line remains unchanged
     ],
 )
-def test_uppercase_transform(lineinfo, expected_line):
+def test_uppercase_transform(item, expected_line):
     """
     Test the UpperCase transform to verify lines are converted to uppercase.
     """
     transform = UpperCase()
-    transformed = list(transform.transform(lineinfo))  # Transform the line
+    transformed = list(transform.transform(item=item))  # Transform the line
     assert len(transformed) == 1  # Ensure only one LineStreamItem is yielded
     assert transformed[0].data == expected_line  # Ensure the line is uppercase
 
 @pytest.mark.parametrize(
-    "lineinfo, expected_line",
+    "item, expected_line",
     [
         (LineStreamItem(sequence_id=1, resource_name="ResourceA", data="HELLO WORLD"), "hello world"),
         (LineStreamItem(sequence_id=2, resource_name="ResourceB", data="PyTEST"), "pytest"),
         (LineStreamItem(sequence_id=3, resource_name="ResourceC", data=""), ""),  # Empty line remains unchanged
     ],
 )
-def test_lowercase_transform(lineinfo, expected_line):
+def test_lowercase_transform(item, expected_line):
     """
     Test the LowerCase transform to verify lines are converted to lowercase.
     """
     transform = LowerCase()
-    transformed = list(transform.transform(lineinfo))  # Transform the line
+    transformed = list(transform.transform(item))  # Transform the line
     assert len(transformed) == 1  # Ensure only one LineStreamItem is yielded
     assert transformed[0].data == expected_line  # Ensure the line is lowercase
 
 @pytest.mark.parametrize(
-    "lineinfo, expected_line",
+    "item, expected_line",
     [
         (LineStreamItem(sequence_id=1, resource_name="ResourceA", data="hello world"), "ResourceA:1:hello world"),
         (LineStreamItem(sequence_id=2, resource_name="ResourceB", data="PyTest"), "ResourceB:2:PyTest"),
         (LineStreamItem(sequence_id=3, resource_name="ResourceC", data=""), "ResourceC:3:"),
     ],
 )
-def test_add_metadata_transform(lineinfo, expected_line):
+def test_add_metadata_transform(item, expected_line):
     """
     Test the AddMetaData transform to verify metadata is correctly added to lines.
     """
     transform = AddMetaData()
-    transformed = list(transform.transform(lineinfo))  # Transform the line
+    transformed = list(transform.transform(item))  # Transform the line
     assert len(transformed) == 1  # Ensure only one LineStreamItem is yielded
     assert transformed[0].data == expected_line  # Ensure metadata is correctly added
 

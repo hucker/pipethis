@@ -1,3 +1,28 @@
+"""
+This module defines the `TextFileHandler` class, which provides functionality for
+streaming text files line by line in a structured and memory-efficient way.
+
+The `TextFileHandler` class:
+- Extends the `FileHandlerBase` to handle text file processing.
+- Supports context management for safe resource handling (opening and closing files).
+- Streams each line from a text file as a `LineStreamItem` object, which includes
+  metadata like line number, file path, and the actual line content.
+
+Target Use Case:
+This handler is ideal for file processing tasks where text lines are consumed
+sequentially, such as processing logs, configuration files, or structured text data.
+
+Example Usage:
+    ```python
+    from pathlib import Path
+
+    file_handler = TextFileHandler(Path("/path/to/file.txt"))
+    with file_handler as handler:
+        for item in handler.stream():
+            print(f"{item.sequence_id}: {item.data}")
+    ```
+"""
+
 import pathlib
 
 from ._base import FileHandlerBase
@@ -37,7 +62,8 @@ class TextFileHandler(FileHandlerBase):
         Stream lines from the opened file as LineStreamItems.
         """
         if not self._file:
-            raise RuntimeError("The file is not open. You must use this file_handler in a context manager.")
+            msg = "The file is not open. You must use this file_handler in a context manager."
+            raise RuntimeError(msg)
 
         for sequence_id, line in enumerate(self._file, start=1):
             yield LineStreamItem(sequence_id, str(self.file_path), line.strip())

@@ -41,7 +41,7 @@ class ImageEnhancerTransformer(TransformBase):
 
         transformed_image: Image.Image = stream_item.data
 
-        # Apply mode conversion only if `transform_string` is explicitly set
+        # Apply mode conversion only if `xform_str` is explicitly set
         if self.transform_string:
             transformed_image = transformed_image.convert(self.transform_string)
 

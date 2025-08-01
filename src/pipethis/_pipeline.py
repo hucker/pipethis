@@ -1,3 +1,32 @@
+"""
+This module defines the `Pipeline` class, which serves as the core component for configuring
+and executing data processing pipelines.
+
+The `Pipeline` class allows users to:
+- Stream data from one or more input sources (`InputBase` implementations).
+- Apply a sequence of transformations (`TransformBase` implementations) to each data item.
+- Write the processed data to one or more outputs (`OutputBase` implementations).
+
+Features:
+- Modular architecture with configurable inputs, transforms, and outputs.
+- Supports method chaining and operator (`|` and `|=`) overloading for building pipelines.
+- Ensures proper resource cleanup using context management with `ExitStack`.
+
+Use Cases:
+- Ideal for applications requiring structured data processing (e.g., ETL pipelines).
+- Supports chaining multiple pipelines together for complex workflows.
+
+Example Usage:
+    ```python
+    pipeline = Pipeline()
+    pipeline.add_input(some_input_source)
+           .add_transform(data_transform)
+           .add_output(output_target)
+           .run()
+    ```
+"""
+
+
 from contextlib import ExitStack
 from typing import List
 
@@ -11,12 +40,12 @@ class Pipeline:
     applies a sequence of transformations, and writes the processed data to multiple outputs.
 
     The pipeline operates using `InputBase`, `TransformBase`, and `OutputBase`-derived objects:
-      - **Inputs**: Data sources that produce streams of `LineStreamItem` objects (e.g., files, strings).
+      - **Inputs**: Sources that produce streams of `LineStreamItem` objects like files&strings.
       - **Transforms**: Processors that modify the `LineStreamItem` objects in sequence.
       - **Outputs**: Data targets for writing transformed rows.
 
-    Resource handling (e.g., cleaning up files, closing connections) is managed via context managers,
-    utilizing `ExitStack`.
+    Resource handling (e.g., cleaning up files, closing connections) is managed via
+    context managers, utilizing `ExitStack`.
 
     Attributes:
         inputs (List[InputBase]):

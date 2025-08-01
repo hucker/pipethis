@@ -1,8 +1,18 @@
+"""
+This module contains output handlers for processing LineStreamItem objects.
+
+The classes in this module provide implementations for writing output to different destinations,
+such as stdout, a file, or an in-memory string.
+"""
+
 from ._base import OutputBase
 from ._streamitem import LineStreamItem
 
 
 class ToStdOut(OutputBase):
+    """
+    A class to handle output directed to the standard output stream.
+    """
 
     def write(self, lineinfo: LineStreamItem):
         """
@@ -18,7 +28,6 @@ class ToStdOut(OutputBase):
         """
         Enter the runtime context. Typically used to perform setup operations.
         """
-        # Clear text_output to ensure a fresh start in a context
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -30,19 +39,26 @@ class ToStdOut(OutputBase):
             exc_value (Exception): Exception instance, if an exception occurred.
             traceback (Traceback): Traceback object for the exception.
         """
-        # For the purpose of a context manager, there's usually no cleanup needed here.
-        # But if there were, you could perform it now.
-        pass
+
 
 
 class ToFile(OutputBase):
+    """
+    A class to handle output directed to a file.
+
+    This class writes output to a file specified by the user, with customizable
+    file mode and encoding.
+    """
+
     def __init__(self, file_name=None, mode='w', encoding="utf-8"):
         """
         Initialize the file writer.
 
         Args:
-            file_name (str, optional): If provided, write output to the file with this name.
-                                       If None, write to stdout.
+            file_name (str, optional): The name of the file to which output will be written.
+                                       Defaults to None, in which case output is directed to stdout.
+            mode (str, optional): The mode in which the file is opened. Defaults to 'w'.
+            encoding (str, optional): The file encoding. Defaults to "utf-8".
         """
         super().__init__()
         self.file_name = file_name
@@ -61,7 +77,7 @@ class ToFile(OutputBase):
 
     def write(self, lineinfo: LineStreamItem):
         """
-        Write the output of a LineInfo object to either stdout or a file.
+        Write the output of a LineInfo object to a file.
 
         Args:
             lineinfo (LineStreamItem): The LineInfo object to write.
@@ -78,8 +94,17 @@ class ToFile(OutputBase):
 
 
 class ToString(OutputBase):
+    """
+    A class to handle output directed to an in-memory string.
+
+    This class provides functionality for concatenating output to a single
+    in-memory string.
+    """
 
     def __init__(self):
+        """
+        Initialize the string writer.
+        """
         super().__init__()
         self.text_output = ""  # This will store the concatenated string
 
@@ -96,8 +121,9 @@ class ToString(OutputBase):
     def __enter__(self):
         """
         Enter the runtime context. Typically used to perform setup operations.
+
+        Clears the text_output to ensure it starts fresh when entering the context.
         """
-        # Clear text_output to ensure a fresh start in a context
         self.text_output = ""
         return self
 
@@ -110,6 +136,3 @@ class ToString(OutputBase):
             exc_value (Exception): Exception instance, if an exception occurred.
             traceback (Traceback): Traceback object for the exception.
         """
-        # For the purpose of a context manager, there's usually no cleanup needed here.
-        # But if there were, you could perform it now.
-        pass

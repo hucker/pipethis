@@ -1,3 +1,21 @@
+"""
+This module defines data structures for encapsulating items in a data pipeline.
+
+The primary purpose of the classes in this module is to represent various types of data
+(such as lines of text or images) flowing through a pipeline. These classes extend
+the `StreamItem` base class and provide validations specific to their respective data types.
+
+Classes:
+    - LineStreamItem: Represents a single line of text in a pipeline. This is typically
+      used for processing textual files, such as logs or structured text.
+    - ImageStreamItem: Represents an image in a pipeline. This is designed for handling
+      image processing tasks using the PIL library (Pillow).
+
+Each class includes validation logic to ensure that the `data` being processed matches
+the expected data type (e.g., string for `LineStreamItem` or `Image.Image` for `ImageStreamItem`).
+"""
+
+
 import dataclasses
 
 from PIL import Image

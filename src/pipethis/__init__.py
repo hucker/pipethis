@@ -1,6 +1,20 @@
+"""
+pipethis: A Python package for creating data transformation pipelines.
+
+This module provides various components, including inputs, outputs, file handlers,
+and transforms, that allow users to build flexible and reusable pipelines for
+processing streaming data.
+
+Exports:
+    - Base classes
+    - Input components
+    - Output components
+    - Transform components
+    - Line data representation
+    - Pipeline class
+"""
 # Exporting base classes
 # Can be overridden by client.
-from ._base import FileHandlerBase
 from ._base import FileHandlerBase, InputBase, OutputBase, StreamItem, TransformBase
 from ._file_handler import TextFileHandler
 # Exporting input components

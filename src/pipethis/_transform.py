@@ -1,3 +1,42 @@
+"""
+This module provides a collection of xform classes for processing streams of text data.
+
+Each transformation class implements the `TransformBase` interface and defines a `transform` method
+that operates on `LineStreamItem` objects. These transformations can modify, filter, or enhance the
+data as needed within a pipeline.
+
+Available Transformations:
+- `PassThrough`: Leaves the input data unchanged.
+- `UpperCase`: Converts all line data to uppercase.
+- `LowerCase`: Converts all line data to lowercase.
+- `AddMetaData`: Adds metadata (resource name and line number) to the line data.
+- `RegexSkipFilter`: Excludes lines that match a given regular expression pattern.
+- `RegexKeepFilter`: Includes only the lines that match a given regular expression pattern.
+- `RegexSubstituteTransform`: Performs regular expression-based substitutions on per-line data.
+- `SkipRepeatedBlankLines`: Skips consecutive blank lines while keeping the first blank line.
+
+
+Use Cases:
+These transformations are intended for use in text processing pipelines, enabling flexible
+manipulation of data streams that consist of individual lines of text.
+
+Example Usage:
+    ```python
+    from pathlib import Path
+    from .transforms import UpperCase, RegexSkipFilter
+
+    # Example transformations
+    upper_case_transform = UpperCase()
+    filter_transform = RegexSkipFilter(pattern=r'^#')  # Skip lines starting with '#'
+
+    # Apply transformations in a pipeline
+    input_line = LineStreamItem(sequence_id=1, resource_name="example.txt", data="hello")
+    for transformed_line in upper_case_transform.transform(input_line):
+        print(transformed_line.data)  # Outputs: "HELLO"
+    ```
+"""
+
+
 import re
 from typing import Iterable
 
@@ -6,136 +45,93 @@ from ._streamitem import LineStreamItem
 
 
 class PassThrough(TransformBase):
-    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
-        yield lineinfo
+    """A transform that passes lines through unchanged."""
+
+    def transform(self, item: LineStreamItem) -> Iterable[LineStreamItem]:
+        yield item
 
 
 class UpperCase(TransformBase):
-    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
-        yield LineStreamItem(sequence_id=lineinfo.sequence_id,
-                             resource_name=lineinfo.resource_name,
-                             data=lineinfo.data.upper())
+
+    """A transform that converts line data to uppercase."""
+
+    def transform(self, item: LineStreamItem) -> Iterable[LineStreamItem]:
+        yield LineStreamItem(sequence_id=item.sequence_id,
+                             resource_name=item.resource_name,
+                             data=item.data.upper())
 
 
 class LowerCase(TransformBase):
-    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
-        yield LineStreamItem(sequence_id=lineinfo.sequence_id,
-                             resource_name=lineinfo.resource_name,
-                             data=lineinfo.data.lower())
+
+    """A transform that converts line data to lowercase."""
+
+    def transform(self, item: LineStreamItem) -> Iterable[LineStreamItem]:
+        yield LineStreamItem(sequence_id=item.sequence_id,
+                             resource_name=item.resource_name,
+                             data=item.data.lower())
 
 
 class AddMetaData(TransformBase):
-    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
-        # Create a new LineStreamItem object instead of modifying the original
-        new_data = f"{lineinfo.resource_name}:{lineinfo.sequence_id}:{lineinfo.data}"
+
+    """A transform that appends metadata to line data."""
+
+    def transform(self, item: LineStreamItem) -> Iterable[LineStreamItem]:
+        new_data = f"{item.resource_name}:{item.sequence_id}:{item.data}"
         yield LineStreamItem(
-            sequence_id=lineinfo.sequence_id,
-            resource_name=lineinfo.resource_name,
+            sequence_id=item.sequence_id,
+            resource_name=item.resource_name,
             data=new_data
         )
 
 
 class RegexSkipFilter(TransformBase):
-    def __init__(self, pattern: str):
-        """
-        Initializes the RegexSkipFilter with a pattern to match lines against.
 
-        Args:
-            pattern (str): The regular expression pattern to match lines to skip.
-        """
+    """A transform that skips lines matching a regex pattern."""
+
+    def __init__(self, pattern: str):
         self.regex = re.compile(pattern)
 
-    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
-        """
-        Filters out lines that match the given regular expression pattern.
-
-        Args:
-            lineinfo (LineStreamItem): The line to test against the regex.
-
-        Yields:
-            LineStreamItem: Lines that do not match the regex.
-        """
-        if not self.regex.match(lineinfo.data):
-            yield lineinfo
+    def transform(self, item: LineStreamItem) -> Iterable[LineStreamItem]:
+        if not self.regex.match(item.data):
+            yield item
 
 
 class RegexKeepFilter(TransformBase):
-    def __init__(self, pattern: str):
-        """
-        Initializes the RegexKeepFilter with a pattern to match lines against.
 
-        Args:
-            pattern (str): The regular expression pattern to match lines to keep.
-        """
+    """A transform that keeps only lines matching a regex pattern."""
+
+    def __init__(self, pattern: str):
         self.regex = re.compile(pattern)
 
-    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
-        """
-        Filters in lines that match the given regular expression pattern.
-
-        Args:
-            lineinfo (LineStreamItem): The line to test against the regex.
-
-        Yields:
-            LineStreamItem: Lines that do not match the regex.
-        """
-        if self.regex.match(lineinfo.data):
-            yield lineinfo
+    def transform(self, item: LineStreamItem) -> Iterable[LineStreamItem]:
+        if self.regex.match(item.data):
+            yield item
 
 
 class RegexSubstituteTransform(TransformBase):
-    def __init__(self, pattern: str, replacement: str):
-        """
-        Initializes the RegexSubstituteTransform with a pattern and replacement.
+    """A transform that substitutes content in lines using a regex."""
 
-        Args:
-            pattern (str): The regular expression pattern to search for in lines.
-            replacement (str): The string to replace the matched content with.
-        """
+    def __init__(self, pattern: str, replacement: str):
         self.regex = re.compile(pattern)
         self.replacement = replacement
 
-    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
-        """
-        Performs a regex substitution on the line content.
-
-        Args:
-            lineinfo (LineStreamItem): The line to process for substitution.
-
-        Yields:
-            LineStreamItem: Lines with substituted content (or unchanged if no match).
-        """
-        lineinfo.data = self.regex.sub(self.replacement, lineinfo.data)
-        yield lineinfo
+    def transform(self, item: LineStreamItem) -> Iterable[LineStreamItem]:
+        item.data = self.regex.sub(self.replacement, item.data)
+        yield item
 
 
 class SkipRepeatedBlankLines(TransformBase):
+    """A transform that skips consecutive blank lines."""
+
     def __init__(self):
-        """
-        Initializes the SkipRepeatedBlankLines transform.
+        self.last_was_blank = False
 
-        Keeps track of whether the previously seen line was blank or not.
-        """
-        self.last_was_blank = False  # State to track if the last line was blank
-
-    def transform(self, lineinfo: LineStreamItem) -> Iterable[LineStreamItem]:
-        """
-        Transforms the input to skip repeated blank lines.
-
-        Args:
-            lineinfo (LineStreamItem): The current line to process.
-
-        Yields:
-            LineStreamItem: Lines that are not repeating blank lines.
-        """
-        is_blank = not lineinfo.data.strip()  # Check if the current line is blank
-
+    def transform(self, item: LineStreamItem) -> Iterable[LineStreamItem]:
+        is_blank = not item.data.strip()
         if is_blank:
-            # Skip if the last line was also blank
             if not self.last_was_blank:
                 self.last_was_blank = True
-                yield lineinfo
+                yield item
         else:
-            # Reset state when encountering a non-blank line
             self.last_was_blank = False
-            yield lineinfo
+            yield item

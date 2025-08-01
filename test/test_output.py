@@ -83,7 +83,7 @@ def test_file_output(tmp_path, lines):
 
 
 @pytest.mark.parametrize(
-    "pattern, lineinfo, is_yielded",
+    "pattern, item, is_yielded",
     [
         # Lines that DO NOT match the pattern should be yielded
         (r"skip.*", LineStreamItem(sequence_id=1, resource_name="ResourceA", data="do not skip this"), True),
@@ -92,23 +92,23 @@ def test_file_output(tmp_path, lines):
         (r"^\s*$", LineStreamItem(sequence_id=4, resource_name="ResourceD", data="content"), True),
     ],
 )
-def test_regex_skip_filter(pattern, lineinfo, is_yielded):
+def test_regex_skip_filter(pattern, item, is_yielded):
     """
     Test the RegexSkipFilter to verify that lines matching the pattern are skipped.
     """
     transform = RegexSkipFilter(pattern)
-    transformed = list(transform.transform(lineinfo))
+    transformed = list(transform.transform(item=item))
 
     if is_yielded:
         # If the line should be yielded, ensure it's in the output
         assert len(transformed) == 1
-        assert transformed[0] == lineinfo
+        assert transformed[0] == item
     else:
         # If the line should be skipped, ensure it's not in the output
         assert len(transformed) == 0
 
 @pytest.mark.parametrize(
-    "pattern, lineinfo, is_yielded",
+    "pattern, item, is_yielded",
     [
         # Lines that match the pattern should be yielded
         (r"keep.*", LineStreamItem(sequence_id=1, resource_name="ResourceA", data="keep this line"), True),
@@ -119,23 +119,23 @@ def test_regex_skip_filter(pattern, lineinfo, is_yielded):
         (r".*error.*", LineStreamItem(sequence_id=6, resource_name="ResourceF", data="successful operation"), False),
     ],
 )
-def test_regex_keep_filter(pattern, lineinfo, is_yielded):
+def test_regex_keep_filter(pattern, item, is_yielded):
     """
     Test the RegexKeepFilter to verify that only lines matching the pattern are kept.
     """
     transform = RegexKeepFilter(pattern)
-    transformed = list(transform.transform(lineinfo))
+    transformed = list(transform.transform(item))
 
     if is_yielded:
         # If the line should be yielded, ensure it's in the output
         assert len(transformed) == 1
-        assert transformed[0] == lineinfo
+        assert transformed[0] == item
     else:
         # If the line should be filtered out, ensure it's not in the output
         assert len(transformed) == 0
 
 @pytest.mark.parametrize(
-    "pattern, replacement, lineinfo, expected_line",
+    "pattern, replacement, item, expected_line",
     [
         # Perform substitutions based on the regex pattern
         (r"foo", "bar", LineStreamItem(sequence_id=1, resource_name="ResourceA", data="foo is fun"), "bar is fun"),
@@ -149,17 +149,17 @@ def test_regex_keep_filter(pattern, lineinfo, is_yielded):
          "this line remains unchanged"),
     ],
 )
-def test_regex_substitute_transform(pattern, replacement, lineinfo, expected_line):
+def test_regex_substitute_transform(pattern, replacement, item, expected_line):
     """
     Test the RegexSubstituteTransform to verify regex substitutions are applied correctly.
     """
     transform = RegexSubstituteTransform(pattern, replacement)
-    transformed = list(transform.transform(lineinfo))
+    transformed = list(transform.transform(item))
 
     assert len(transformed) == 1  # Only one LineStreamItem object should be yielded
     assert transformed[0].data == expected_line  # Ensure the substitution produced the expected line
-    assert transformed[0].sequence_id == lineinfo.sequence_id  # Other attributes remain unchanged
-    assert transformed[0].resource_name == lineinfo.resource_name
+    assert transformed[0].sequence_id == item.sequence_id  # Other attributes remain unchanged
+    assert transformed[0].resource_name == item.resource_name
 
 
 def test_string_output():

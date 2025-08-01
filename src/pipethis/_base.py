@@ -1,3 +1,12 @@
+"""
+This module provides base classes for the `pipethis` package.
+
+The classes defined here are abstract base classes (ABC) used for core
+components, including file handlers, input, output, and transformation
+elements in the pipeline. These classes serve as the foundation for extending
+and implementing custom functionality in pipelines.
+"""
+
 import dataclasses
 import pathlib
 from abc import ABC, abstractmethod
@@ -7,30 +16,28 @@ from typing import Any, Iterable
 @dataclasses.dataclass
 class StreamItem(ABC):
     """
-    A base class representing streaming data information in a generalized form.
+    Represents an item of data streaming through the pipeline.
 
-    The sequence ID and resource name can be used for error reporting.  For
-    example.
-
-    Pipeline Error: File-data.txt  Line-23  Invalid data - xxx
+    The `StreamItem` contains essential properties, such as its sequence ID and
+    associated resource name, enabling it to hold metadata and stream data.
 
     Attributes:
-        sequence_id (int): A sequential identifier for the data. The meaning is
-                           contextual (e.g., line # for text, row # for csv, frame # for video).
-                           Some data files don't have an idea of a sequence ID, such
-                           as image files.  In this case  just using sequence ID = 1 is fine.
-        resource_name (str): Name or identifier of the resource the data belongs to
-                             (e.g., file name, sheet name).
-        data (Any): The actual data being processed. Subclasses specify the type.
+        sequence_id (int): Sequential identifier for the data (e.g., line #, row #, page #).
+        resource_name (str): Name of the data source (e.g., file name, table, or sheet name).
+        data (Any): The actual data content being processed.
     """
 
-    sequence_id: int  # Line number, page number, frame number
-    resource_name: str  # Typically a file name but can be anything useful to end user.
-    data: Any  # Data flowing in pipeline
+    sequence_id: int
+    resource_name: str
+    data: Any
 
     def __post_init__(self):
+        """
+        Perform additional validation and cleanup on initialization.
 
-        # Avoid confusion and don't allow bad whitespace.
+        Ensures that sequence_id is positive and that resource_name is a non-empty string.
+        """
+        # Avoid confusion and don't allow bad whitespace
         if isinstance(self.resource_name, str):
             self.resource_name = self.resource_name.strip()
 
@@ -46,82 +53,160 @@ class StreamItem(ABC):
         self.validate()
 
     @abstractmethod
-    def validate(self):  # pragma no cover
-        """Perform additional subclass-specific validation."""
-        pass
+    def validate(self):
+        """
+        Perform additional subclass-specific validation.
+
+        This method must be implemented by subclasses to add custom validation logic.
+        """
+        raise NotImplementedError("Subclasses must implement 'validate'") # pragma: no cover
+
 
 
 class FileHandlerBase(ABC):
     """
-    Abstract base class for handling files of various types. Supports resource
-    management via context manager methods.
+    Base class for handling files in the pipeline.
+
+    This abstract class provides a foundation for extending file reading
+    functionality and ensures resource management through context manager support.
     """
 
     def __init__(self, file_path: pathlib.Path):
+        """
+        Initialize the file handler with the file path.
+
+        Args:
+            file_path (pathlib.Path): Path to the file to be handled.
+        """
         self.file_path = file_path
 
     @abstractmethod
-    def stream(self) -> Iterable[StreamItem]:  # pragma: no cover
-
+    def stream(self) -> Iterable[StreamItem]:
         """
         Stream the content of the file as StreamItems.
+
+        Returns:
+            Iterable[StreamItem]: An iterable of `StreamItem` objects.
         """
-        pass
+        raise NotImplementedError("Subclasses must implement 'stream'") # pragma: no cover
 
-    def __enter__(self):  # pragma: no cover
-
-        """
-        Prepare resources for file handling.
-        """
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):  # pragma: no cover
-
-        """
-        Clean up resources associated with file handling.
-        """
-        pass
-
-
-class InputBase(ABC):  # no cover
-    """Base class for all input components."""
-
-    @abstractmethod
-    def stream(self) -> Iterable[StreamItem]:  # pragma no cover
-        pass
-
-
-class TransformBase(ABC):  # no cover
-    """Base class for all transformation components."""
-
-    @abstractmethod
-    def transform(self, item: StreamItem) -> Iterable[StreamItem]:  # pragma no cover
-        pass
-
-
-class OutputBase(ABC):  # pragma no cover
-    """Base class for all output components."""
-
-    def __init__(self):
-        pass
 
     def __enter__(self):
         """
-        Default context manager behavior.
-        Does nothing, as not all outputs need special setup.
+        Prepare resources for processing the file.
+
+        Returns:
+            FileHandlerBase: The instance of the file handler.
         """
-        return self
+        return self # pragma: no cover
+
 
     def __exit__(self, exc_type, exc_value, traceback):
         """
-        Default context manager behavior.
-        Does nothing, as not all outputs need special cleanup.
+        Cleanup resources when exiting context.
+
+        Args:
+            exc_type (type): Exception type raised during the context.
+            exc_value (Exception): Exception value raised during the context.
+            traceback (Traceback): Traceback object for the exception.
         """
-        pass
+
+
+
+class InputBase(ABC):
+    """
+    Base class for all input components in the pipeline.
+
+    Input components are responsible for streaming data into the pipeline.
+    """
+
+    @abstractmethod
+    def stream(self) -> Iterable[StreamItem]:
+        """
+        Stream input data as StreamItems.
+
+        Must be implemented by subclasses to define specific input behavior.
+
+        Returns:
+            Iterable[StreamItem]: An iterable StreamItem objects.
+        """
+        raise NotImplementedError("Subclasses must implement 'stream'") # pragma: no cover
+
+
+
+class TransformBase(ABC):
+    """
+    Base class for all transformation components in the pipeline.
+
+    Transform components operate on `StreamItem` objects, allowing
+    modification or enhancement of the data.
+    """
+
+    @abstractmethod
+    def transform(self, item: StreamItem) -> Iterable[StreamItem]:
+        """
+        Apply a transformation to the given StreamItem.
+
+        Args:
+            item (StreamItem): The StreamItem instance to be transformed.
+
+        Returns:
+            Iterable[StreamItem]: An iterable containing transformed StreamItems.
+        """
+        raise NotImplementedError("Subclasses must implement 'transform'") # pragma: no cover
+
+
+
+class OutputBase(ABC):
+    """
+    Base class for all output components in the pipeline.
+
+    Output components are responsible for writing or processing the final results
+    of the pipeline.
+    """
+
+    def __init__(self):
+        """
+        Initialize the output component. Default behavior does nothing.
+        """
+
+    def __enter__(self):
+        """
+        Prepare resources for output.
+
+        Default context manager behavior, which does nothing.
+        Returns:
+            OutputBase: The instance of the output component.
+        """
+        return self # pragma: no cover
+
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Cleanup resources for output.
+
+        Default context manager behavior, which does nothing.
+
+        Args:
+            exc_type (type): Exception type raised during the context.
+            exc_value (Exception): Exception value raised during the context.
+            traceback (Traceback): Traceback object for the exception.
+        """
 
     @abstractmethod
     def write(self, lineinfo: StreamItem):
-        pass
+        """
+        Write the output of a StreamItem.
+
+        Args:
+            lineinfo (StreamItem): The StreamItem to be written.
+        """
+        raise NotImplementedError("Subclasses must implement 'write'") # pragma: no cover
+
 
     def close(self):
-        pass
+        """
+        Perform cleanup operations when output operations are finished.
+
+        Default behavior does nothing but can be overridden by subclasses.
+        """

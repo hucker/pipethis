@@ -1,5 +1,12 @@
-from PIL import Image, ImageEnhance
+"""
+This module provides tools for transforming and enhancing images using the
+ImageEnhancerTransformer class. It supports customizable adjustments such as
+brightness, contrast, saturation, sharpness, and optional mode conversions,
+enabling flexible image processing in a pipeline.
+"""
 
+
+from PIL import Image, ImageEnhance
 from ._base import TransformBase
 from ._streamitem import ImageStreamItem
 
@@ -12,7 +19,7 @@ class ImageEnhancerTransformer(TransformBase):
 
     VALID_MODES = {"", "1", "L", "P", "RGB", "RGBA", "CMYK", "YCbCr", "LAB", "HSV", "I", "F"}
 
-    def __init__(self, transform_string: str = None,  # Change default to `None`
+    def __init__(self, xform_str: str = None,  # Change default to `None`
                  brightness: float = 1.0,
                  contrast: float = 1.0,
                  saturation: float = 1.0,
@@ -20,10 +27,12 @@ class ImageEnhancerTransformer(TransformBase):
         """
         Initializes the ImageEnhancerTransformer with specified transformation parameters.
         """
-        if transform_string and not self._validate_mode(transform_string):
-            raise ValueError(f"Invalid mode '{transform_string}'. Available modes: {', '.join(self.VALID_MODES)}.")
+        if xform_str and not self._validate_mode(xform_str):
 
-        self.transform_string = transform_string  # Can be `None` now
+            msg = f"Invalid mode '{xform_str}'. Available modes: {', '.join(self.VALID_MODES)}."
+            raise ValueError(msg)
+
+        self.transform_string = xform_str  # Can be `None` now
         self.brightness = brightness
         self.contrast = contrast
         self.saturation = saturation
@@ -32,16 +41,16 @@ class ImageEnhancerTransformer(TransformBase):
     def _validate_mode(self, mode: str):
         return mode in self.VALID_MODES
 
-    def transform(self, stream_item: ImageStreamItem) -> ImageStreamItem:
+    def transform(self, item: ImageStreamItem) -> ImageStreamItem:
         """
         Applies the configured image enhancements and mode transformation to an ImageStreamItem.
         """
-        if not isinstance(stream_item, ImageStreamItem):
+        if not isinstance(item, ImageStreamItem):
             raise TypeError("Expected an ImageStreamItem")
 
-        transformed_image: Image.Image = stream_item.data
+        transformed_image: Image.Image = item.data
 
-        # Apply mode conversion only if `transform_string` is explicitly set
+        # Apply mode conversion only if `xform_str` is explicitly set
         if self.transform_string:
             transformed_image = transformed_image.convert(self.transform_string)
 
@@ -71,7 +80,7 @@ class ImageEnhancerTransformer(TransformBase):
 
         # Return a new ImageStreamItem with the transformed image
         return ImageStreamItem(
-            sequence_id=stream_item.sequence_id,
-            resource_name=stream_item.resource_name,
+            sequence_id=item.sequence_id,
+            resource_name=item.resource_name,
             data=transformed_image
         )
