@@ -13,6 +13,29 @@ integrate predefined components or implement their own. Whether you're processin
 or experimenting with streaming data, `pipethis` streamlines the process, making it easy to assemble 
 pipelines programmatically.
 
+Grossly speaking the code implements this simple pattern:
+
+```
+   +---------------------+         +------------------------+         +-----------------------+
+   |      Input          |         |      Transform         |         |        Output         |
+   |---------------------|         |------------------------|         |-----------------------|
+   | FromFile            | ----->  |     Upper              | ----->  |      ToFile           |
+   | FromFolder          |         |     Lower              |         |      ToString         |
+   | FromGlob            |         |     Regex              |         |      ToStdout         |
+   +---------------------+         +------------------------+         +-----------------------+
+```
+
+```mermaid
+graph LR
+    A[FromFile] --> |Input| B[Upper]
+    A2[FromFolder] --> |Input| B
+    A3[FromGlob] --> |Input| B
+    B --> |Transform| C[ToFile]
+    B --> |Transform| C2[ToString]
+    B --> |Transform| C3[ToStdout]
+```
+
+
 Does it work?  Yeah, it has 99+% coverage and 9.95/10.0 lint, so it is in decent shape.  I have used it for 
 a few things, and it works, but YMMV.
 
