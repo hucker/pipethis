@@ -2,10 +2,11 @@
 name = "pipethis"
 version = "0.1.0"
 description = "Add your description here"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 dependencies = [
-    "pillow==11.3.0",
+    "pillow==11.3.0"
 ]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+

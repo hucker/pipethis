@@ -337,7 +337,9 @@ class FromGlob:
             """
 
         for root, dirs, files in os.walk(self.folder_path):
-            # Skip ignored folders
+            # Modify the 'dirs' list in-place (since it is mutable) to exclude ignored folders.
+            # By using 'dirs[:]', we write into the original 'dirs' list that 'os.walk' uses internally.
+            # This ensures that the ignored folders are skipped during traversal in subsequent iterations.
             dirs[:] = [d for d in dirs if d not in self.ignore_folders]
 
             # Iterate through files in the remaining folders

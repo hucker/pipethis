@@ -151,8 +151,9 @@ To test or modify the package locally:
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone https://github.com/hucker/pipethis.git
+
+   cd pipethis
    ```
 
 2. Install in editable mode:
