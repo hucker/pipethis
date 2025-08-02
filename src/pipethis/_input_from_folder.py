@@ -13,7 +13,7 @@ Example Usage:
     ...         print(line.data)
 """
 
-from pathlib import Path
+import pathlib
 from typing import Type
 
 from ._input_from_file import FromFile
@@ -35,7 +35,7 @@ class FromFolder:
     - Supports custom file handlers to process specific file formats.
 
     Attributes:
-        folder_path (Path): Path to the folder containing files to be processed.
+        folder_path (pathlib.Path): Path to the folder containing files to be processed.
         file_handler (Type[FileHandlerBase]): The file handler class used to process files.
                                               Defaults to `TextFileHandler` if not specified.
         keep_patterns (list[str]): Inclusion patterns for filtering (e.g., ['*.txt', '*.py']).
@@ -47,7 +47,7 @@ class FromFolder:
 
     def __init__(
             self,
-            folder_path: Path,
+            folder_path: pathlib.Path | str,
             file_handler: Type[FileHandlerBase] | None = None,
             keep_patterns: list[str] | None = None,
             ignore_patterns: list[str] | None = None,
@@ -60,7 +60,7 @@ class FromFolder:
         provided, the default `TextFileHandler` is used.
 
         Args:
-            folder_path (Path): Path to the folder containing files to process.
+            folder_path (pathlib.Path|str): Path to the folder containing files to process.
             file_handler (Type[FileHandlerBase] | None): Custom file handler class for processing
                                                          files.  Defaults to `TextFileHandler`.
             keep_patterns (list[str] | None): List of inclusion patterns for filtering files.
@@ -73,7 +73,7 @@ class FromFolder:
         Raises:
             ValueError: If both `keep_patterns` and `ignore_patterns` are provided simultaneously.
         """
-        self.folder_path = folder_path
+        self.folder_path = pathlib.Path(folder_path)
         self.file_handler = file_handler or TextFileHandler
         self.keep_patterns = keep_patterns or []
         self.ignore_patterns = ignore_patterns or []
@@ -136,7 +136,7 @@ class FromFolder:
             with FromFile(filepath=file_path, handler=self.file_handler) as from_file:
                 yield from from_file.stream()
 
-    def _should_include(self, file_path: Path) -> bool:
+    def _should_include(self, file_path: pathlib.Path) -> bool:
         """
         Determine whether a file should be included in the processing.
 
@@ -150,7 +150,7 @@ class FromFolder:
         3. Files matching `ignore_patterns` are excluded if specified.
 
         Args:
-            file_path (Path): The path of the file to evaluate.
+            file_path (pathlib.Path): The path of the file to evaluate.
 
         Returns:
             bool: True if the file should be included; False otherwise.

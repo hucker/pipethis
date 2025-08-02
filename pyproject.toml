@@ -23,3 +23,4 @@ disable = []
 min-public-methods = 0
 max-args = 6
 max-positional-arguments = 6
+max-attributes = 8

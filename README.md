@@ -78,9 +78,12 @@ Inputs determine how data is ingested into the pipeline. The package provides se
 - `FromFolder`: Reads data from multiple files in a single directory.
 - `FromGlob`: Reads multiple folders and calls from file for each item
 
-The core concept if inputs is the notion of file handlers. File handlers are called on each file that is detected
+The core concept of inputs is the notion of file handlers. File handlers are called on each file that is detected
 in the inputs.  Files generally are treated line by line (for things like text files) and file by file for things
-like images.  The handler classes stream method for standard text files is nothing more than yielding each line into
+like images. One could imagine that log files would be line by line, but they would find stack traces that that
+take up multiple lines but "should" be handled as one thing (future feature).
+
+The handler classes stream method for standard text files is nothing more than yielding each line into
 a line stream item while keeping track of line numbers (which is very important for debugging).  The package
 comes by default with code for text files showing line based data and "files" for binary data showing how to 
 stream images with the pillow library.
@@ -103,7 +106,7 @@ class TextFileHandler(FileHandlerBase):
             yield LineStreamItem(sequence_id=sequence_id, resource_name=(self.file_path), data=line.strip())
    ```
 
-This same mechanism works for files that are processed all at once.
+This same mechanism works for files that are processed all at once, the data item would be an image.
 
 Example:
 ```python
@@ -131,7 +134,7 @@ Outputs control where the processed data is sent. Some common options are:
 - `ToStdOut`: Prints to the console.
 - `ToFile`: Writes output to a file.
 - `ToString`: Aggregates processed data as a single string.
-- 'ToJson': Aggregates processed data to a json file
+- `ToJson`: Aggregates processed data to a json file
 
 Example:
 ```python
@@ -231,6 +234,7 @@ def advanced_pipeline():
 
 ```
 
+
 ---
 
 ## Development and Testing
@@ -274,7 +278,7 @@ And generates this lint score.
 
 ```text
 ------------------------------------------------------------------
-Your code has been rated at 9.91/10 (previous run: 9.95/10, +0.00)
+Your code has been rated at 9.93/10 (previous run: 9.91/10, +0.00)
 ```
 
 *TOX*

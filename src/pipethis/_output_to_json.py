@@ -1,3 +1,18 @@
+"""
+This module provides functionality for writing structured data to JSON files.
+
+The primary class, `ToJson`, handles the creation and management of JSON output files with metadata,
+allowing users to specify file attributes such as name, mode, encoding, and additional parameters
+like a description or a processing date.
+
+Features:
+- Supports writing records with sequence IDs, resource names, and data to JSON format.
+- Allows customization of the output file's metadata, including a description and run date.
+- Supports context management to ensure proper resource cleanup.
+- Handles both Python `datetime` objects and ISO 8601 formatted strings for the processing date.
+
+This module is designed to work with pipeline-based data flows.
+"""
 import json
 import pathlib
 import datetime as dt
@@ -77,7 +92,6 @@ class ToJson(OutputBase):
                        'date':self.run_date,
                        'count':len(self.records)},
              'records':self.records}
-        """Ensure the file is closed properly on exit."""
+        #Ensure the file is closed properly on exit.
         with open(self.file_name, mode=self.mode, encoding=self.encoding) as outfile:
             json.dump(self.json_data, outfile)
-
