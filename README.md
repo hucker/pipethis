@@ -52,7 +52,8 @@ graph LR
         G[ToFile]
         H[ToStdout]
         I[ToString]
-        G --> H --> I
+        J[ToJson]
+        G --> H --> I --> J
     end
 
     Transform ==> Outputs
@@ -130,6 +131,7 @@ Outputs control where the processed data is sent. Some common options are:
 - `ToStdOut`: Prints to the console.
 - `ToFile`: Writes output to a file.
 - `ToString`: Aggregates processed data as a single string.
+- 'ToJson': Aggregates processed data to a json file
 
 Example:
 ```python
@@ -210,7 +212,7 @@ The following example takes files and folders from several locations, filters fo
 log file Errors
 
 ```python
-from pipethis import FromFile, FromFolder, FromGlob, RegexKeepFilter, ToFile, ToStdOut, Pipeline
+from pipethis import FromFile, FromFolder, FromGlob, RegexKeepFilter, ToFile, ToStdOut, Pipeline,ToJson
 
 def advanced_pipeline():
     # Define the pipeline
@@ -221,6 +223,7 @@ def advanced_pipeline():
                 | RegexKeepFilter(r"database")
                 | ToFile("filtered_logs.txt")
                 | ToStdOut() 
+                | ToJson("filtered_logs.json")
                 )
 
     # Run the pipeline. duh
@@ -329,6 +332,7 @@ src/pipethis/_input_from_strings.py      18      0   100%
 src/pipethis/_output_to_file.py          20      0   100%
 src/pipethis/_output_to_stdout.py         9      0   100%
 src/pipethis/_output_to_string.py        13      0   100%
+src/pipethis/_output_to_json.py          20      0   100%
 src/pipethis/_pipeline.py                51      0   100%
 src/pipethis/_streamitem.py              17      0   100%
 src/pipethis/_transform.py               47      0   100%

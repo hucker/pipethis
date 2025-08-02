@@ -27,6 +27,7 @@ from ._input_from_glob import FromGlob
 from ._output_to_file import ToFile
 from ._output_to_stdout import ToStdOut
 from ._output_to_string import ToString
+from ._output_to_json import ToJson
 
 # Exporting pipeline class
 from ._pipeline import Pipeline
@@ -35,7 +36,7 @@ from ._streamitem import LineStreamItem
 # Exporting transform components
 from ._transform import (AddMetaData, LowerCase, PassThrough, RegexKeepFilter, RegexSkipFilter,
                          RegexSubstituteTransform, SkipRepeatedBlankLines, UpperCase)
-
+from ._image_transform import ImageStreamItem,ImageEnhancerTransformer
 # Define the public API of the package
 __all__ = [
     # Base classes
@@ -47,12 +48,15 @@ __all__ = [
     # Line data representation
     "LineStreamItem",
 
+    #Image data representation
+    "ImageStreamItem",
+
     # File handlers
     "FileHandlerBase",
     "TextFileHandler",
 
     # Outputs
-    "ToStdOut", "ToFile", "ToString",
+    "ToStdOut", "ToFile", "ToString","ToJson",
 
     # Pipeline
     "Pipeline",
@@ -60,5 +64,8 @@ __all__ = [
     # String Transforms
     "PassThrough", "UpperCase", "LowerCase", "RegexKeepFilter",
     "AddMetaData", "RegexSkipFilter", "RegexSubstituteTransform",
-    "SkipRepeatedBlankLines"
+    "SkipRepeatedBlankLines",
+
+    # Image Transforms
+    "ImageEnhancerTransformer",
 ]
