@@ -1,7 +1,12 @@
 import pytest
 import pathlib
 # noinspection PyProtectedMember
-from pipethis._inputs import FromString,FromFolder,FromFile,FromGlob,FromStrings
+from pipethis._input_from_string import FromString
+from pipethis._input_from_folder import FromFolder
+from pipethis._input_from_file import FromFile
+from pipethis._input_from_glob import FromGlob
+from pipethis._input_from_strings import FromStrings
+
 # noinspection PyProtectedMember
 from pipethis._file_handler import TextFileHandler,FileHandlerBase
 from pipethis._streamitem import LineStreamItem

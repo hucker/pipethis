@@ -13,6 +13,10 @@ integrate predefined components or implement their own. Whether you're processin
 or experimenting with streaming data, `pipethis` streamlines the process, making it easy to assemble 
 pipelines programmatically.
 
+The scope of this is for small to medium-sized workloads running on a single machine.  It is not setup for multi
+threading or distribution accross processes, and of course it runs in python, however it the intent is to speed up
+development time to have something useful quickly.
+
 When I use the word "clean", my main goals were making the tool to be easy to extend by adding file handlers and
 making the end user code "clean" even if this was at the expense of having the code have a few calls to
 `isinstance` or having many defaults that just work.
@@ -81,9 +85,9 @@ comes by default with code for text files showing line based data and "files" fo
 stream images with the pillow library.
 
 ```python
- from pipethis._file_handler import FileHandlerBase
- from pipethis._streamitem import LineStreamItem
- class TextFileHandler(FileHandlerBase):
+from pipethis._file_handler import FileHandlerBase
+from pipethis._streamitem import LineStreamItem
+class TextFileHandler(FileHandlerBase):
     # Class omitted
     
     def stream(self):
@@ -180,7 +184,7 @@ Pipelines can be built incrementally by creating by OR'ing together input, trans
 and output objects.
 
 ```python
-from pipethis import Pipeline, FromString, UpperCase, ToFile
+from pipethis import FromString, UpperCase, ToFile
 
 pipeline = (FromString("data pipeline\nexample code")  
            | UpperCase() 
@@ -191,7 +195,7 @@ pipeline.run()
 ### Error Handling
 Use `try/except` blocks to handle exceptions during pipeline execution:
 ```python
-from pipethis import Pipeline, FromString, UpperCase, ToFile
+from pipethis import FromString, UpperCase, ToFile
 try:
    pipeline = (FromString("data pipeline\nexample code") 
                | UpperCase() 
@@ -267,7 +271,7 @@ And generates this lint score.
 
 ```text
 ------------------------------------------------------------------
-Your code has been rated at 9.95/10 (previous run: 9.95/10, +0.00)
+Your code has been rated at 9.91/10 (previous run: 9.95/10, +0.00)
 ```
 
 *TOX*
@@ -276,12 +280,13 @@ Tested on Python 3.10->3.13 (3.14 doesn't work on my M1 Mac)
 
 ```text
 =============================================================================================================================================================================== 151 passed in 0.77s ===============================================================================================================================================================================
-  py313: OK (2.71=setup[1.72]+cmd[0.99] seconds)
-  py310: OK (2.58=setup[1.45]+cmd[1.13] seconds)
-  py311: OK (2.51=setup[1.48]+cmd[1.03] seconds)
-  py312: OK (7.16=setup[5.54]+cmd[1.62] seconds)
-  lint: OK (1.65=setup[0.68]+cmd[0.97] seconds)
-  congratulations :) (16.71 seconds)
+  py310: OK (2.94=setup[1.98]+cmd[0.96] seconds)
+  py311: OK (1.55=setup[0.66]+cmd[0.88] seconds)
+  py312: OK (1.64=setup[0.70]+cmd[0.94] seconds)
+  py313: OK (1.56=setup[0.62]+cmd[0.94] seconds)
+  lint: OK (1.54=setup[0.61]+cmd[0.93] seconds)
+  congratulations :) (9.38 seconds)
+
 ```
 
 *COVERAGE*
@@ -296,27 +301,37 @@ from abc import ABC,abstractmethod
 class foo(ABC):
     @abstractmethod
     def validate(self):
-    """
-    Perform additional subclass-specific validation.
-    This method must be implemented by subclasses to add custom validation logic.
-    """
-    raise NotImplementedError("Subclasses must implement 'validate'") # pragma: no cover
+       """
+       Perform additional subclass-specific validation.
+       This method must be implemented by subclasses to add custom validation logic.
+       """
+       raise NotImplementedError("Subclasses must implement 'validate'") # pragma: no cover
 
 ```
 
+```shell
+coverage run -m pytest
+coverage report
+```
 
 ```text
 Name                               Stmts   Miss  Cover
 ------------------------------------------------------
-src/pipethis/__init__.py               8      0   100%
-src/pipethis/_base.py                 41      0   100%
-src/pipethis/_file_handler.py         21      0   100%
-src/pipethis/_image_transform.py      31      0   100%
-src/pipethis/_inputs.py              152      0   100%
-src/pipethis/_output.py               38      0   100%
-src/pipethis/_pipeline.py             51      0   100%
-src/pipethis/_streamitem.py           15      0   100%
-src/pipethis/_transform.py            47      0   100%
+src/pipethis/__init__.py                 14      0   100%
+src/pipethis/_base.py                    46      0   100%
+src/pipethis/_file_handler.py            21      0   100%
+src/pipethis/_image_transform.py         31      0   100%
+src/pipethis/_input_from_file.py         63      1   100%
+src/pipethis/_input_from_folder.py       33      0   100%
+src/pipethis/_input_from_glob.py         37      0   100%
+src/pipethis/_input_from_string.py       14      0   100%
+src/pipethis/_input_from_strings.py      18      0   100%
+src/pipethis/_output_to_file.py          20      0   100%
+src/pipethis/_output_to_stdout.py         9      0   100%
+src/pipethis/_output_to_string.py        13      0   100%
+src/pipethis/_pipeline.py                51      0   100%
+src/pipethis/_streamitem.py              17      0   100%
+src/pipethis/_transform.py               47      0   100%
 ```
 ---
 ## Contributions

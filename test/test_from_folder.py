@@ -1,7 +1,7 @@
 import pathlib
 import pytest
 # noinspection PyProtectedMember
-from pipethis._inputs import FromFolder
+from pipethis._input_from_folder import FromFolder
 # noinspection PyProtectedMember
 from pipethis._file_handler import TextFileHandler
 

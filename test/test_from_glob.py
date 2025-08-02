@@ -4,7 +4,7 @@ import pytest
 
 from pipethis import TextFileHandler
 # noinspection PyProtectedMember
-from pipethis._inputs import FromGlob
+from pipethis._input_from_glob import FromGlob
 
 
 def create_file(file_path: pathlib.Path, content: str = ""):

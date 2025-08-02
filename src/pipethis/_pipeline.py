@@ -1,30 +1,21 @@
 """
-This module defines the `Pipeline` class, which serves as the core component for configuring
-and executing data processing pipelines.
+This module defines the `Pipeline` class, which provides a framework for building,
+configuring, and running data processing pipelines. Pipelines are composed of
+inputs, transformations, and outputs, allowing users to assemble complex workflows
+programmatically.
 
-The `Pipeline` class allows users to:
-- Stream data from one or more input sources (`InputBase` implementations).
-- Apply a sequence of transformations (`TransformBase` implementations) to each data item.
-- Write the processed data to one or more outputs (`OutputBase` implementations).
-
-Features:
-- Modular architecture with configurable inputs, transforms, and outputs.
-- Supports method chaining and operator (`|` and `|=`) overloading for building pipelines.
-- Ensures proper resource cleanup using context management with `ExitStack`.
-
-Use Cases:
-- Ideal for applications requiring structured data processing (e.g., ETL pipelines).
-- Supports chaining multiple pipelines together for complex workflows.
+The `Pipeline` class supports chaining multiple components together with clean,
+readable syntax and features sequential execution of input, transform, and output steps.
 
 Example Usage:
-    ```python
-    pipeline = Pipeline()
-    pipeline.add_input(some_input_source)
-           .add_transform(data_transform)
-           .add_output(output_target)
-           .run()
-    ```
+    >>> from pipethis._pipeline import Pipeline
+    >>> from pipethis._input_from_file import FromFile
+    >>> from pipethis._transform import UpperCase
+    >>> from pipethis._output_to_stdout import ToStdOut
+    >>> p = Pipeline() | FromFile("input.txt") | UpperCase() | ToStdOut()
+    >>> p.run()
 """
+
 
 
 from contextlib import ExitStack

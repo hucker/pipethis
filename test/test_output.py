@@ -5,7 +5,9 @@ from pipethis._streamitem import LineStreamItem
 # noinspection PyProtectedMember
 from pipethis._transform import RegexKeepFilter, RegexSkipFilter, RegexSubstituteTransform
 # noinspection PyProtectedMember
-from pipethis._output import ToStdOut, ToFile,ToString
+from pipethis._output_to_stdout import ToStdOut
+from pipethis._output_to_file import ToFile
+from pipethis._output_to_string import ToString
 
 
 # noinspection SpellCheckingInspection

@@ -47,5 +47,3 @@ class ToStdOut(OutputBase):
             exc_value (Exception): Exception instance, if an exception occurred.
             traceback (Traceback): Traceback object for the exception.
         """
-
-

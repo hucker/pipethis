@@ -1,9 +1,9 @@
 import pytest
 
 # noinspection PyProtectedMember
-from pipethis._inputs import FromString
+from pipethis._input_from_string import FromString
 # noinspection PyProtectedMember
-from pipethis._output import ToString
+from pipethis._output_to_string import ToString
 # noinspection PyProtectedMember
 from pipethis._transform import AddMetaData, UpperCase,PassThrough,RegexKeepFilter
 # noinspection PyProtectedMember

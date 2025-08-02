@@ -1,5 +1,6 @@
 import pytest
-from pipethis import FromString, FromStrings
+from pipethis._input_from_string import FromString
+from pipethis._input_from_strings import  FromStrings
 
 def test_from_string_initialization():
     """Test initialization of FromString with valid inputs."""

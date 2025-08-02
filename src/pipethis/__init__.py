@@ -18,9 +18,16 @@ Exports:
 from ._base import FileHandlerBase, InputBase, OutputBase, StreamItem, TransformBase
 from ._file_handler import TextFileHandler
 # Exporting input components
-from ._inputs import FromFile, FromFolder, FromGlob, FromString, FromStrings
-# Exporting output components
-from ._output import ToFile, ToStdOut, ToString
+from ._input_from_file import FromFile
+from ._input_from_string import FromString
+from ._input_from_strings import FromStrings
+from ._input_from_folder import FromFolder
+from ._input_from_glob import FromGlob
+
+from ._output_to_file import ToFile
+from ._output_to_stdout import ToStdOut
+from ._output_to_string import ToString
+
 # Exporting pipeline class
 from ._pipeline import Pipeline
 # Exporting line data representation
