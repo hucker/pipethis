@@ -9,10 +9,7 @@ def test_image_stream_item_validate_valid_data():
     valid_item = ImageStreamItem(sequence_id=1, resource_name="test_image.jpg", data=valid_image)
 
     # The validate method should not raise any exception
-    try:
-        valid_item.validate()
-    except Exception as e:
-        pytest.fail(f"validate() raised an exception unexpectedly: {e}")
+    assert valid_item.validate()
 
 
 def test_image_stream_item_validate_invalid_data():

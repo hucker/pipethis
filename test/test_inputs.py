@@ -12,12 +12,7 @@ from pipethis._file_handler import TextFileHandler,FileHandlerBase
 from pipethis._streamitem import LineStreamItem
 
 
-@pytest.fixture(autouse=True)
-def reset_handlers():
-    """
-    Fixture to reset registered handlers before each test.
-    """
-    FromFile.clear_registered_handlers()
+
 
 
 def test_from_string_basic():
@@ -374,7 +369,7 @@ def test_register_handler_invalid_extension():
     """
     with pytest.raises(ValueError, match="Invalid extension pattern 'log'. Must start with '.'"):
         @FromFile.register_handler("log")
-        class InvalidExtensionHandler(FileHandlerBase):
+        class InvalidExtensionHandler(FileHandlerBase): # pragma no cover
             pass
 
 
@@ -456,5 +451,5 @@ def test_register_handler_invalid_extension_pattern():
     """
     with pytest.raises(ValueError, match="Invalid extension pattern 'invalid_pattern'"):
         @FromFile.register_handler("invalid_pattern")
-        class InvalidHandler(FileHandlerBase):
-            pass
+        class InvalidHandler(FileHandlerBase): # pragma no cover
+            ...

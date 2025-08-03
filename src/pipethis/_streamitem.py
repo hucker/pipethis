@@ -59,3 +59,4 @@ class ImageStreamItem(StreamItem):
         if not isinstance(self.data, Image.Image):
             msg = "Data must be an instance of PIL.Image.Image for ImageStreamItem"
             raise ValueError(msg)
+        return True

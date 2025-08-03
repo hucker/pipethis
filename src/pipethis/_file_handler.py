@@ -66,4 +66,6 @@ class TextFileHandler(FileHandlerBase):
             raise RuntimeError(msg)
 
         for sequence_id, line in enumerate(self._file, start=1):
-            yield LineStreamItem(sequence_id, str(self.file_path), line.strip())
+            line = line.replace('\r\n', '\n').replace('\r', '\n').replace('\n', '')
+
+            yield LineStreamItem(sequence_id, str(self.file_path), line)

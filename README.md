@@ -263,6 +263,10 @@ To test or modify the package locally:
 
 *PYTEST*
 
+A test suite is provided with 100% test and source coverage using the pytest library. Files
+ending in test*_hy.py indicate that property based testing is being performed using the
+hypothesis package.  This is my firs foray into property based testing.
+
 ============================= 155 passed in 0.20s ==============================
 
 *LINT*

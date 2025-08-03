@@ -4,8 +4,9 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.10"
 dependencies = [
-    "pillow==11.3.0",
-    "tox==4.28.4",
+    "hypothesis>=6.136.0",
+    "pillow>=11.3.0",
+    "tox>=4.28.0",
 ]
 
 [tool.pytest.ini_options]

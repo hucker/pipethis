@@ -85,5 +85,4 @@ def test_text_file_handler_non_existent_file(tmp_path: pathlib.Path):
     with pytest.raises(FileNotFoundError, match=str(non_existent_file)):
         with TextFileHandler(non_existent_file) as handler:
             # Attempting to stream should never occur, as the exception should be raised earlier
-            pass # list(handler.stream())
-
+            pass # pragma no cover
