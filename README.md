@@ -1,30 +1,49 @@
 
-## Overview
+## Version Support
+![Python 3.10+](https://img.shields.io/badge/python-3.10+-green)
+![Python 3.11+](https://img.shields.io/badge/python-3.11+-green)
+![Python 3.12+](https://img.shields.io/badge/python-3.12+-green)
+![Python 3.13+](https://img.shields.io/badge/python-3.13+-green)
+![Python 3.14+](https://img.shields.io/badge/python-3.14+-green)
+<br>
 
-Pipethis is an exercise in learning how to create objects that are composed using functions and general python
-operator overloading mechanisms to handle constructing pipelines.  While it has 100% test coverage and is quite 
-flexible it is mostly a demonstration of basic package construction using Python.
+<!-- For now these are manually added -->
 
-`pipethis` is a package designed to simplify the process of building, extending, and executing data pipelines.
-It provides a modular framework that enables users to define pipelines as a sequence of operations and data 
-transformations. Each pipeline can ingest data, process it through customizable transformations, and output 
-the results in various formats. The library follows a "clean" and extensible architecture, allowing developers to
-integrate predefined components or implement their own. Whether you're processing text files, building ETL pipelines, 
-or experimenting with streaming data, `pipethis` streamlines the process, making it easy to assemble 
-pipelines programmatically.
+![Coverage](https://img.shields.io/badge/coverage-100.0%25-brightgreen)
+![Test Coverage](https://img.shields.io/badge/test_coverage-100.0%25-brightgreen)
+![Lint](https://img.shields.io/badge/lint-9.94-brightgreen)
+<br>
 
-The scope of this is for small to medium-sized workloads running on a single machine.  It is not setup for multi
-threading or distribution accross processes, and of course it runs in python, however it the intent is to speed up
-development time to have something useful quickly.
 
-When I use the word "clean", my main goals were making the tool to be easy to extend by adding file handlers and
-making the end user code "clean" even if this was at the expense of having the code have a few calls to
-`isinstance` or having many defaults that just work.
+## `pipethis`: Simplify and Modularize Data Pipelines
+**`pipethis`** is a Python library designed to simplify the creation, extension, and execution of data pipelines. By leveraging Python’s operator overloading and modular design, it allows developers to build readable and extendable pipelines programmatically — perfect for small to medium-sized workloads.
+The library follows a clean, intuitive architecture that enables users to define pipelines as a sequence of operations, from data ingestion to transformations and output. Whether working with log files, building ETL pipelines, or experimenting with data processing workflows, `pipethis` speeds up development and results in clean, maintainable code.
+### **Key Features**
+- **Pipeline Composition using Function Chaining**: Build pipelines using simple, expressive Python code with operator overloading for easy chaining of transformations.
+- **Modular Design**: Extend pipelines by defining custom data handlers, transformations, and outputs.
+- **Rapid Development**: Focused on speeding up development for single-machine workloads, freeing you to focus on processing logic rather than boilerplate code.
+- **Flexible I/O**: Supports multiple input sources, flexible transformations, and diverse output formats.
+- **Customizable Defaults**: Designed to “just work,” but allows full customization where needed.
 
-Grossly speaking the code allows you to take input from many sources, transform it and write the aggregated data to
-a number of outputs.  Obviously real world cases would likely have a single input and single output, but might have
-many transforms.  My use-case was processing log files from many folders, looking for ERROR and stack traces and 
-generating a report. 
+### **Limitations**
+`pipethis` is optimized for single-machine, small-to-medium workloads and doesn't support multithreading or distributed computation. It works best for lightweight processing tasks.
+### **Example Use Case**
+Imagine needing to analyze log files from multiple folders, search for patterns (e.g., `ERROR` or stack traces), and generate a summarized report. With `pipethis`, you can rapidly compose a pipeline that:
+1. Reads from multiple sources.
+2. Chains transformations to filter, parse, or aggregate data.
+3. Outputs a clean and actionable report.
+
+### **A Philosophy of Clean Code**
+`pipethis` prioritizes ease of use and clean end-user code, even if it involves small tradeoffs like relying on conveniences (`isinstance` checks) or opinionated defaults. Its goal is to make "clean" pipeline development accessible to developers of all experience levels.
+### **Why You’ll Love (or accept it as it is) It**
+`pipethis` is a straightforward yet powerful tool for:
+- Rapid prototyping and experimentation with custom pipelines.
+- Learning Python package design, operator overloading, and modular programming.
+- Simplifying small-scale ETL workflows without requiring heavy frameworks.
+
+### **Original Use Case**
+`pipethis` was initially developed to process log files from multiple sources, extract key events or errors, and summarize them. While the focus remains on simplicity and fast prototyping, its design allows for more general-purpose data processing pipelines.
+
 
 
 ```mermaid
@@ -185,7 +204,7 @@ class ToStdErr(OutputBase):
 ## Pipeline Usage
 
 ### Pipeline Execution
-Pipelines can be built incrementally by creating by OR'ing together input, transform
+Pipelines can be built incrementally by OR'ing together input, transform
 and output objects.
 
 ```python
@@ -215,7 +234,7 @@ The following example takes files and folders from several locations, filters fo
 log file Errors
 
 ```python
-from pipethis import FromFile, FromFolder, FromGlob, RegexKeepFilter, ToFile, ToStdOut, Pipeline,ToJson
+from pipethis import FromFile, FromFolder, FromGlob, RegexKeepFilter, ToFile, ToStdOut, ToJson
 
 def advanced_pipeline():
     # Define the pipeline
@@ -263,9 +282,11 @@ To test or modify the package locally:
 
 *PYTEST*
 
-A test suite is provided with 100% test and source coverage using the pytest library. Files
+A test suite is provided with 100% test and source coverage using the `pytest` library. Files
 ending in `test*_hy.py` indicate that property based testing is being performed using the
 `hypothesis package`.  This is my first foray into property based testing.
+
+<!-- For now these are manually added -->
 
 ============================= 155 passed in 0.20s ==============================
 
@@ -280,6 +301,7 @@ max-positional-arguments = 6
 ```
 And generates this lint score.
 
+<!-- For now these are manually added -->
 ```text
 ------------------------------------------------------------------
 Your code has been rated at 9.94/10 (previous run: 9.93/10, +0.00)
@@ -287,30 +309,32 @@ Your code has been rated at 9.94/10 (previous run: 9.93/10, +0.00)
 
 *TOX*
 
-Tested on Python 3.10->3.13 (3.14 doesn't work on my M1 Mac)
+Tested on Python 3.10->3.14
 
+<!-- For now these are manually added -->
 ```text
 =============================================================================================================================================================================== 151 passed in 0.77s ===============================================================================================================================================================================
-  py310: OK (2.94=setup[1.98]+cmd[0.96] seconds)
-  py311: OK (1.55=setup[0.66]+cmd[0.88] seconds)
-  py312: OK (1.64=setup[0.70]+cmd[0.94] seconds)
-  py313: OK (1.56=setup[0.62]+cmd[0.94] seconds)
-  lint: OK (1.54=setup[0.61]+cmd[0.93] seconds)
-  congratulations :) (9.38 seconds)
+  py310: OK (9.06 seconds)
+  py311: OK (6.09 seconds)
+  py312: OK (6.45 seconds)
+  py313: OK (6.42 seconds)
+  py314: OK (6.05 seconds)
+  lint: OK (6.20 seconds)
+
 
 ```
 
 *COVERAGE*
 
-The test suite reports this coverage with sparse use of `#no cover` in _base.py in code where
-the base class will never be instantiated. Coverage is 100% for both the code base and the
+The test suite reports this coverage with sparse use of `#no cover` in `_base.py` for code that
+the base class will never instantiate. Coverage is 100% for both the code base and the
 tests.
 
 ```python
 
 from abc import ABC,abstractmethod
  
-class foo(ABC):
+class SomeInput(ABC):
     @abstractmethod
     def validate(self):
        """
@@ -321,11 +345,13 @@ class foo(ABC):
 
 ```
 
+To generate  the coverage results these commands should be run:
 ```shell
 coverage run -m pytest
 coverage report
 ```
 
+<!-- For now these are manually added -->
 ```text
 Name                                  Stmts   Miss  Cover
 ---------------------------------------------------------
