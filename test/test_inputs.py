@@ -4,56 +4,55 @@ import pathlib
 from pipethis._input_from_string import FromString
 from pipethis._input_from_folder import FromFolder
 from pipethis._input_from_file import FromFile
-from pipethis._input_from_glob import FromGlob
 from pipethis._input_from_strings import FromStrings
-
+from pipethis._base import InputBase
 # noinspection PyProtectedMember
 from pipethis._file_handler import TextFileHandler,FileHandlerBase
 from pipethis._streamitem import LineStreamItem
+from pipethis._base import InputBase
+
+@pytest.mark.parametrize(
+    "items, sep, expected, should_raise",
+    [
+        # Test cases where no exception is expected
+        (None, " ", [], None),  # None input -> empty list
+        ("", " ", [], None),  # Empty string -> empty list
+        ("apple banana cherry", " ", ["apple", "banana", "cherry"], None),  # String with default separator
+        ("apple,banana,cherry", ",", ["apple", "banana", "cherry"], None),  # String with custom separator
+        (["apple", "banana", "cherry"], " ", ["apple", "banana", "cherry"], None),  # Valid list of strings
+        ([], " ", [], None),  # Empty list -> empty list
+        (["", "apple", ""], " ", ["", "apple", ""], None),  # List with empty strings -> unchanged
+
+        # Test cases where exceptions are expected
+        (["apple", 123, "cherry"], " ", None, ValueError),  # List with a non-string element -> raises ValueError
+        (123, " ", None, ValueError),  # Invalid type (integer) -> raises ValueError
+    ],
+)
+def test_list_or_string(items, sep, expected, should_raise):
+    """
+    Parameterized test for the `_list_or_string` method using a DummyInputBase.
+    Covers both valid inputs and exceptions.
+    """
+
+    class DummyInputBase(InputBase):
+        """Concrete subclass of InputBase with all abstract methods implemented for testing purposes."""
+
+        def stream(self):
+            """Dummy implementation of the abstract 'stream' method."""
 
 
-
-
-
-def test_from_string_basic():
-    """Test `FromString` with basic multiline input."""
-    text = "Hello\nWorld\nThis is a test\nLine 4"
-    from_string = FromString(text)
-    results = list(from_string.stream())
-
-    assert len(results) == 4
-
-    assert results[0].sequence_id == 1
-    assert results[0].resource_name == "text"
-    assert results[0].data == "Hello"
-
-    assert results[1].sequence_id == 2
-    assert results[1].resource_name == "text"
-    assert results[1].data == "World"
-
-    assert results[2].sequence_id == 3
-    assert results[2].resource_name == "text"
-    assert results[2].data == "This is a test"
-
-    assert results[3].sequence_id == 4
-    assert results[3].resource_name == "text"
-    assert results[3].data == "Line 4"
-
-def test_from_strings_single_line():
-    """Test `FromString` with a single-line input."""
-    lines = ["This is a single-line test."]
-    from_strings = FromStrings(lines,sep='\n',name="text")
-    results = list(from_strings.stream())
-
-    assert len(results) == 1
-    assert results[0].sequence_id == 1
-
+    dummy = DummyInputBase()
+    if should_raise:
+        with pytest.raises(should_raise, match="Input must be a string or a list of strings"):
+            dummy._list_or_string(items, sep)
+    else:
+        assert dummy._list_or_string(items, sep) == expected
 
 def test_from_string_list():
-    """Test `FromString` with a single-line input."""
+    """Test `FromStrings` with a single-line input."""
     lines = ["This is the first line.","This is the next line"]
     from_strings = FromStrings(lines,sep='\n',name="text")
-    results = list(from_strings.stream())
+    results = from_strings.to_list()
 
     assert len(results) == 2
     assert results[0].sequence_id == 1
@@ -63,10 +62,10 @@ def test_from_string_list():
 
 
 def test_from_string_list_double_line():
-    """Test `FromString` with a multi line multi input."""
+    """Test `FromStrings` with a multi line multi input."""
     lines = ["This is the\nfirst line.","This is the\nnext line"]
     from_strings = FromStrings(lines,sep='\n',name="text")
-    results = list(from_strings.stream())
+    results = from_strings.to_list()
 
     assert len(results) == 4
     assert results[0].sequence_id == 1
@@ -78,6 +77,18 @@ def test_from_string_list_double_line():
     assert results[2].data == "This is the"
     assert results[3].sequence_id == 2
     assert results[3].data == "next line"
+
+
+
+def test_from_strings_single_line():
+    """Test `FromString` with a single-line input."""
+    lines = ["This is a single-line test."]
+    from_strings = FromStrings(lines,sep='\n',name="text")
+    results = from_strings.to_list()
+
+    assert len(results) == 1
+    assert results[0].sequence_id == 1
+
 
 
 @pytest.mark.parametrize(
@@ -120,7 +131,7 @@ def test_from_strings(lines, expected_results):
     """Test `FromStrings` with various input cases including null/empty strings."""
 
     from_strings = FromStrings(lines, sep='\n', name="text")
-    results = list(from_strings.stream())
+    results = from_strings.to_list()
 
     # Assert that the length of the results matches the expected results length
     assert len(results) == len(expected_results)
@@ -321,8 +332,7 @@ def test_decorator_register_handler(tmp_path):
                 self._file.close()
 
         def stream(self):
-            if not self._file:
-                raise RuntimeError("File not open. Use in a context manager.")
+
             for idx, line in enumerate(self._file, start=1):
                 # Yield a LineStreamItem for each line
                 yield LineStreamItem(sequence_id=idx, resource_name=str(self.file_path), data=line.strip())

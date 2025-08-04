@@ -18,10 +18,10 @@ from typing import Type
 
 from ._input_from_file import FromFile
 from ._file_handler import TextFileHandler
-from ._base import FileHandlerBase
+from ._base import FileHandlerBase,InputBase
 
 
-class FromFolder:
+class FromFolder(InputBase):
     """
     Reads and processes data from files in a folder, with support for file filtering
     based on inclusion or exclusion patterns.
@@ -49,8 +49,8 @@ class FromFolder:
             self,
             folder_path: pathlib.Path | str,
             file_handler: Type[FileHandlerBase] | None = None,
-            keep_patterns: list[str] | None = None,
-            ignore_patterns: list[str] | None = None,
+            keep_patterns: list[str] | str | None = None,
+            ignore_patterns: list[str] | str | None = None,
     ):
         """
         Initializes the `FromFolder` instance.
@@ -75,8 +75,8 @@ class FromFolder:
         """
         self.folder_path = pathlib.Path(folder_path)
         self.file_handler = file_handler or TextFileHandler
-        self.keep_patterns = keep_patterns or []
-        self.ignore_patterns = ignore_patterns or []
+        self.keep_patterns = self._list_or_string(keep_patterns)
+        self.ignore_patterns =  self._list_or_string(ignore_patterns)
 
         # Validate that both lists are not simultaneously set
         if self.keep_patterns and self.ignore_patterns:

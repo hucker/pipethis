@@ -264,8 +264,8 @@ To test or modify the package locally:
 *PYTEST*
 
 A test suite is provided with 100% test and source coverage using the pytest library. Files
-ending in test*_hy.py indicate that property based testing is being performed using the
-hypothesis package.  This is my firs foray into property based testing.
+ending in `test*_hy.py` indicate that property based testing is being performed using the
+`hypothesis package`.  This is my first foray into property based testing.
 
 ============================= 155 passed in 0.20s ==============================
 
@@ -282,7 +282,7 @@ And generates this lint score.
 
 ```text
 ------------------------------------------------------------------
-Your code has been rated at 9.93/10 (previous run: 9.91/10, +0.00)
+Your code has been rated at 9.94/10 (previous run: 9.93/10, +0.00)
 ```
 
 *TOX*
@@ -302,8 +302,9 @@ Tested on Python 3.10->3.13 (3.14 doesn't work on my M1 Mac)
 
 *COVERAGE*
 
-The test suite reports this coverage with sparse use of `#no cover` in _base.py in in code where
-the base class will never be instantiated.
+The test suite reports this coverage with sparse use of `#no cover` in _base.py in code where
+the base class will never be instantiated. Coverage is 100% for both the code base and the
+tests.
 
 ```python
 
@@ -326,24 +327,43 @@ coverage report
 ```
 
 ```text
-Name                               Stmts   Miss  Cover
-------------------------------------------------------
-src/pipethis/__init__.py                 14      0   100%
-src/pipethis/_base.py                    46      0   100%
-src/pipethis/_file_handler.py            21      0   100%
+Name                                  Stmts   Miss  Cover
+---------------------------------------------------------
+src/pipethis/__init__.py                 16      0   100%
+src/pipethis/_base.py                    60      0   100%
+src/pipethis/_file_handler.py            22      0   100%
 src/pipethis/_image_transform.py         31      0   100%
-src/pipethis/_input_from_file.py         63      1   100%
+src/pipethis/_input_from_file.py         62      0   100%
 src/pipethis/_input_from_folder.py       33      0   100%
 src/pipethis/_input_from_glob.py         37      0   100%
 src/pipethis/_input_from_string.py       14      0   100%
 src/pipethis/_input_from_strings.py      18      0   100%
 src/pipethis/_output_to_file.py          20      0   100%
+src/pipethis/_output_to_json.py          32      0   100%
 src/pipethis/_output_to_stdout.py         9      0   100%
 src/pipethis/_output_to_string.py        13      0   100%
-src/pipethis/_output_to_json.py          20      0   100%
 src/pipethis/_pipeline.py                51      0   100%
-src/pipethis/_streamitem.py              17      0   100%
+src/pipethis/_streamitem.py              18      0   100%
 src/pipethis/_transform.py               47      0   100%
+test/test_file_handler.py                38      0   100%
+test/test_from_file_hy.py                16      0   100%
+test/test_from_folder.py                 43      0   100%
+test/test_from_glob.py                   70      0   100%
+test/test_from_string.py                 21      0   100%
+test/test_from_string_hy.py              19      0   100%
+test/test_from_strings.py                60      0   100%
+test/test_image_xform.py                 76      0   100%
+test/test_imagestream.py                 10      0   100%
+test/test_inputs.py                     213      0   100%
+test/test_lineinfo.py                    53      0   100%
+test/test_output.py                      85      0   100%
+test/test_pipeline.py                   170      0   100%
+test/test_strings.py                     61      0   100%
+test/test_to_json.py                     70      0   100%
+test/test_transform.py                   49      0   100%
+---------------------------------------------------------
+TOTAL                                  1537      0   100%
+
 ```
 ---
 ## Contributions

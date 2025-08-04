@@ -18,11 +18,11 @@ from fnmatch import fnmatch
 from pathlib import Path
 from typing import Iterable, Type
 
-from ._base import FileHandlerBase
+from ._base import FileHandlerBase,InputBase
 from ._file_handler import TextFileHandler
 from ._input_from_file import FromFile
 
-class FromGlob:
+class FromGlob(InputBase):
     """
     Reads data by matching file paths using glob patterns.
     """
@@ -31,9 +31,9 @@ class FromGlob:
             self,
             folder_path: Path | str,
             file_handler: Type[FileHandlerBase] | None = None,
-            ignore_folders: list[str] | None = None,
-            keep_patterns: list[str] | None = None,
-            ignore_patterns: list[str] | None = None,
+            ignore_folders: list[str] | str | None = None,
+            keep_patterns: list[str] | str | None = None,
+            ignore_patterns: list[str] | str | None = None,
     ):
         """
         Initializes the `FromGlob` class to process and filter files from a directory
@@ -67,9 +67,9 @@ class FromGlob:
 
         self.folder_path = Path(folder_path) if isinstance(folder_path, str) else folder_path
         self.file_handler = file_handler or TextFileHandler
-        self.keep_patterns = keep_patterns or []
-        self.ignore_patterns = ignore_patterns or []
-        self.ignore_folders = ignore_folders or []
+        self.keep_patterns = self._list_or_string(keep_patterns)
+        self.ignore_patterns = self._list_or_string(ignore_patterns)
+        self.ignore_folders = self._list_or_string(ignore_folders)
 
         # Validate that both lists are not simultaneously set
         if self.keep_patterns and self.ignore_patterns:

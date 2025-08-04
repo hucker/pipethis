@@ -34,6 +34,7 @@ def test_from_glob_all_files(setup_files):
     """Test FromGlob streams all files without filtering."""
     with FromGlob(folder_path=setup_files, file_handler=TextFileHandler) as from_rglob:
         results = list(from_rglob.stream())
+        results = from_rglob.to_list()
 
     # Check that all file lines are included
     expected_files = {"file1.txt", "file2.log", "file3.txt", "file4.tmp", "file5.txt", "file6.log"}
