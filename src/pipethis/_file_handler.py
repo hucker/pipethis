@@ -22,11 +22,14 @@ Example Usage:
             print(f"{item.sequence_id}: {item.data}")
     ```
 """
-
 import pathlib
 
 from ._base import FileHandlerBase
+from ._logging import get_logger
 from ._streamitem import LineStreamItem
+
+# Create local logger
+logger = get_logger(__name__)
 
 
 class TextFileHandler(FileHandlerBase):

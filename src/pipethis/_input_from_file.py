@@ -12,10 +12,12 @@ Example Usage:
     ...     for line in input_file.stream():
     ...         print(line.data)
 """
-
-from pathlib import Path
-
+import pathlib
 from ._base import FileHandlerBase, InputBase
+from ._logging import get_logger
+
+# Create local logger
+logger = get_logger(__name__)
 
 
 class FromFile(InputBase):
@@ -23,13 +25,15 @@ class FromFile(InputBase):
     Reads data from a single file using a specified handler.
 
     Attributes:
-        filepath (str): Path to the file to be read.
+        filepath (str): pathlib.Path to the file to be read.
         _handler (str): The name of the handler used to read the file.
     """
     # Registry mapping extensions to file_handler classes
     _HANDLER_MAP: dict[str, type[FileHandlerBase]] = {}
 
-    def __init__(self, filepath: str|Path, handler: type[FileHandlerBase] = None):
+    def __init__(self,
+                 filepath: str | pathlib.Path,
+                 handler: type[FileHandlerBase] = None):
         """
         Initialize a FromFile object with the provided file path and optional handler.
 
@@ -38,7 +42,8 @@ class FromFile(InputBase):
             handler (type[FileHandlerBase], optional): Custom file handler class. If not provided,
                 the appropriate handler will be selected based on the file extension.
         """
-        self.filepath = Path(filepath).resolve()
+        logger.debug("Init FromFile with path: %s", filepath)
+        self.filepath = pathlib.Path(filepath).resolve()
         self._handler = handler  # Store the custom handler class (if any)
         self._file_handler_instance = None  # Instantiate lazily only when accessed
 
@@ -52,12 +57,14 @@ class FromFile(InputBase):
         Yields:
             LineStreamItem instances representing each line from the file.
         """
+        logger.info("Streaming content from the file: %s", self.filepath)
+
         # Check if the file handler is already initialized (via a context manager)
         handler_initialized = self._file_handler_instance is not None
 
         if handler_initialized:
             # If already initialized, just stream from the file handler
-            yield from self.file_handler.stream() # pragma no cover
+            yield from self.file_handler.stream()  # pragma no cover
         else:
             # If not initialized, use a context manager to open it temporarily
             with self.file_handler as temp_handler:
@@ -68,6 +75,7 @@ class FromFile(InputBase):
         """
         Delegate context setup to the file_handler instance.
         """
+        logger.debug("Entering context for file: %s", self.filepath)
         self._file_handler_instance = self.file_handler.__enter__()
         return self._file_handler_instance
 
@@ -75,13 +83,13 @@ class FromFile(InputBase):
         """
         Delegate context teardown to the file_handler instance.
         """
+        logger.debug("Exiting context for file: %s", self.filepath)
         if self._file_handler_instance:
             self._file_handler_instance.__exit__(exc_type, exc_value, traceback)
             self._file_handler_instance = None
 
-
     @property
-    def file_handler(self)->FileHandlerBase:
+    def file_handler(self) -> FileHandlerBase:
         """
         Lazily resolve and instantiate the appropriate handler for the file.
         """
@@ -99,13 +107,13 @@ class FromFile(InputBase):
         return self._file_handler_instance
 
     def _get_handler(self,
-                     filepath: Path,
+                     filepath: pathlib.Path,
                      handler: type[FileHandlerBase] | None) -> type[FileHandlerBase]:
         """
         Choose the appropriate file_handler, either custom or from the registry.
 
         Args:
-            filepath (Path): The path to the file.
+            filepath (pathlib.Path): The path to the file.
             handler (type[FileHandlerBase] | None): A custom file_handler class.
 
         Returns:
@@ -134,6 +142,7 @@ class FromFile(InputBase):
 
         This is useful for testing purposes to reset the state of the registry.
         """
+        logger.info("Clearing all registered file handlers.")
         cls._HANDLER_MAP.clear()
 
     @classmethod

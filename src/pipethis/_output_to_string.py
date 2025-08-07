@@ -14,10 +14,12 @@ Example Usage:
     >>> print(output.text_output)
 """
 
-
 from ._base import OutputBase
+from ._logging import get_logger
 from ._streamitem import LineStreamItem
 
+# Create local logger
+logger = get_logger(__name__)
 
 
 class ToString(OutputBase):
@@ -33,6 +35,7 @@ class ToString(OutputBase):
         Initialize the string writer.
         """
         super().__init__()
+        logger.debug("Init ToString")
         self.text_output = ""  # This will store the concatenated string
 
     def write(self, lineinfo: LineStreamItem):

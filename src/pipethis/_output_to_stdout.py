@@ -13,14 +13,22 @@ Example Usage:
     ...     output.write(item)
 """
 
-
 from ._base import OutputBase
+from ._logging import get_logger
 from ._streamitem import LineStreamItem
+
+# Create local logger
+logger = get_logger(__name__)
+
 
 class ToStdOut(OutputBase):
     """
     A class to handle output directed to the standard output stream.
     """
+
+    def __init__(self):
+        super().__init__()
+        logger.debug("Init ToStdOut")
 
     def write(self, lineinfo: LineStreamItem):
         """

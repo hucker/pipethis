@@ -16,9 +16,14 @@ Example Usage:
 
 from typing import Iterable
 
-from ._base import  InputBase
-from ._streamitem import LineStreamItem
+from ._base import InputBase
 from ._input_from_string import FromString
+from ._logging import get_logger
+from ._streamitem import LineStreamItem
+
+# Create local logger
+logger = get_logger(__name__)
+
 
 class FromStrings(InputBase):
     """

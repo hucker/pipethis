@@ -18,9 +18,14 @@ from fnmatch import fnmatch
 from pathlib import Path
 from typing import Iterable, Type
 
-from ._base import FileHandlerBase,InputBase
+from ._base import FileHandlerBase, InputBase
 from ._file_handler import TextFileHandler
 from ._input_from_file import FromFile
+from ._logging import get_logger
+
+# Create local logger
+logger = get_logger(__name__)
+
 
 class FromGlob(InputBase):
     """
@@ -64,6 +69,8 @@ class FromGlob(InputBase):
         Raises:
             ValueError: If both `keep_patterns` and `ignore_patterns` are provided simultaneously.
         """
+        logger.debug("Init FromGlob with path: %s keep=%s ignore=%s",
+                     folder_path, keep_patterns, ignore_patterns)
 
         self.folder_path = Path(folder_path) if isinstance(folder_path, str) else folder_path
         self.file_handler = file_handler or TextFileHandler
@@ -91,7 +98,6 @@ class FromGlob(InputBase):
         """
         Exit the context. Nothing needs to be closed or cleaned up.
         """
-
 
     def stream(self) -> Iterable[Path]:
         """
@@ -154,7 +160,6 @@ class FromGlob(InputBase):
                     with FromFile(filepath=file_path,
                                   handler=self.file_handler) as from_file:
                         yield from from_file.stream()
-
 
     def _should_keep(self, filename: str) -> bool:
         """

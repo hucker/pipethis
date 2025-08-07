@@ -15,12 +15,15 @@ Each class includes validation logic to ensure that the `data` being processed m
 the expected data type (e.g., string for `LineStreamItem` or `Image.Image` for `ImageStreamItem`).
 """
 
-
 import dataclasses
 
 from PIL import Image
 
 from ._base import StreamItem
+from ._logging import get_logger
+
+# Create local logger
+logger = get_logger(__name__)
 
 
 @dataclasses.dataclass

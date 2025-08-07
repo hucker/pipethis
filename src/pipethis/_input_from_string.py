@@ -7,7 +7,7 @@ This is particularly useful for testing or processing in-memory text data.
 
 Example Usage:
     >>> from pipethis._input_from_string import FromString
-    >>> input_data = `line1\nline2\nline3`
+    >>> input_data = 'line1\nline2\nline3'
     >>> input_stream = FromString(input_data, sep="\n")
     >>> for item in input_stream.stream():
     ...     print(item.sequence_id, item.data)
@@ -15,7 +15,11 @@ Example Usage:
 from typing import Iterable
 
 from ._base import InputBase
+from ._logging import get_logger
 from ._streamitem import LineStreamItem
+
+# Create local logger
+logger = get_logger(__name__)
 
 
 class FromString(InputBase):

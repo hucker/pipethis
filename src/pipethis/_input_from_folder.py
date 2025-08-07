@@ -16,9 +16,13 @@ Example Usage:
 import pathlib
 from typing import Type
 
-from ._input_from_file import FromFile
+from ._base import FileHandlerBase, InputBase
 from ._file_handler import TextFileHandler
-from ._base import FileHandlerBase,InputBase
+from ._input_from_file import FromFile
+from ._logging import get_logger
+
+# Create local logger
+logger = get_logger(__name__)
 
 
 class FromFolder(InputBase):
@@ -73,10 +77,13 @@ class FromFolder(InputBase):
         Raises:
             ValueError: If both `keep_patterns` and `ignore_patterns` are provided simultaneously.
         """
+
+        logger.debug("Init FromFolder with path: %s", folder_path)
+
         self.folder_path = pathlib.Path(folder_path)
         self.file_handler = file_handler or TextFileHandler
         self.keep_patterns = self._list_or_string(keep_patterns)
-        self.ignore_patterns =  self._list_or_string(ignore_patterns)
+        self.ignore_patterns = self._list_or_string(ignore_patterns)
 
         # Validate that both lists are not simultaneously set
         if self.keep_patterns and self.ignore_patterns:
@@ -109,7 +116,6 @@ class FromFolder(InputBase):
             exc_value (Exception): Exception instance, if raised within the context.
             traceback (Traceback): Traceback object, if an exception is raised.
         """
-
 
     def stream(self):
         """

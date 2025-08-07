@@ -17,18 +17,20 @@ Exports:
 # Can be overridden by client.
 from ._base import FileHandlerBase, InputBase, OutputBase, StreamItem, TransformBase
 from ._file_handler import TextFileHandler
+from ._image_transform import ImageEnhancerTransformer, ImageStreamItem
 # Exporting input components
 from ._input_from_file import FromFile
-from ._input_from_string import FromString
-from ._input_from_strings import FromStrings
 from ._input_from_folder import FromFolder
 from ._input_from_glob import FromGlob
-
+from ._input_from_string import FromString
+from ._input_from_strings import FromStrings
+from ._logging import initialize_pipethis_logger
+# Logging
+from ._logging import pipethis_setup_logging
 from ._output_to_file import ToFile
+from ._output_to_json import ToJson
 from ._output_to_stdout import ToStdOut
 from ._output_to_string import ToString
-from ._output_to_json import ToJson
-
 # Exporting pipeline class
 from ._pipeline import Pipeline
 # Exporting line data representation
@@ -36,7 +38,7 @@ from ._streamitem import LineStreamItem
 # Exporting transform components
 from ._transform import (AddMetaData, LowerCase, PassThrough, RegexKeepFilter, RegexSkipFilter,
                          RegexSubstituteTransform, SkipRepeatedBlankLines, UpperCase)
-from ._image_transform import ImageStreamItem,ImageEnhancerTransformer
+
 # Define the public API of the package
 __all__ = [
     # Base classes
@@ -48,7 +50,7 @@ __all__ = [
     # Line data representation
     "LineStreamItem",
 
-    #Image data representation
+    # Image data representation
     "ImageStreamItem",
 
     # File handlers
@@ -56,7 +58,7 @@ __all__ = [
     "TextFileHandler",
 
     # Outputs
-    "ToStdOut", "ToFile", "ToString","ToJson",
+    "ToStdOut", "ToFile", "ToString", "ToJson",
 
     # Pipeline
     "Pipeline",

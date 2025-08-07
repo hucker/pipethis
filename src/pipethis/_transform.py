@@ -36,9 +36,13 @@ Example Usage:
     ```
 """
 
-
 import re
 from typing import Iterable
+
+from ._logging import get_logger
+
+# Create local logger
+logger = get_logger(__name__)
 
 from ._base import TransformBase
 from ._streamitem import LineStreamItem
@@ -52,7 +56,6 @@ class PassThrough(TransformBase):
 
 
 class UpperCase(TransformBase):
-
     """A transform that converts line data to uppercase."""
 
     def transform(self, item: LineStreamItem) -> Iterable[LineStreamItem]:
@@ -62,7 +65,6 @@ class UpperCase(TransformBase):
 
 
 class LowerCase(TransformBase):
-
     """A transform that converts line data to lowercase."""
 
     def transform(self, item: LineStreamItem) -> Iterable[LineStreamItem]:
@@ -72,7 +74,6 @@ class LowerCase(TransformBase):
 
 
 class AddMetaData(TransformBase):
-
     """A transform that appends metadata to line data."""
 
     def transform(self, item: LineStreamItem) -> Iterable[LineStreamItem]:
@@ -85,7 +86,6 @@ class AddMetaData(TransformBase):
 
 
 class RegexSkipFilter(TransformBase):
-
     """A transform that skips lines matching a regex pattern."""
 
     def __init__(self, pattern: str):
@@ -97,7 +97,6 @@ class RegexSkipFilter(TransformBase):
 
 
 class RegexKeepFilter(TransformBase):
-
     """A transform that keeps only lines matching a regex pattern."""
 
     def __init__(self, pattern: str):

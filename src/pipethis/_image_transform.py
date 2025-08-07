@@ -5,10 +5,14 @@ brightness, contrast, saturation, sharpness, and optional mode conversions,
 enabling flexible image processing in a pipeline.
 """
 
-
 from PIL import Image, ImageEnhance
+
 from ._base import TransformBase
+from ._logging import get_logger
 from ._streamitem import ImageStreamItem
+
+# Create local logger
+logger = get_logger(__name__)
 
 
 class ImageEnhancerTransformer(TransformBase):
@@ -28,7 +32,6 @@ class ImageEnhancerTransformer(TransformBase):
         Initializes the ImageEnhancerTransformer with specified transformation parameters.
         """
         if xform_str and not self._validate_mode(xform_str):
-
             msg = f"Invalid mode '{xform_str}'. Available modes: {', '.join(self.VALID_MODES)}."
             raise ValueError(msg)
 
@@ -37,6 +40,8 @@ class ImageEnhancerTransformer(TransformBase):
         self.contrast = contrast
         self.saturation = saturation
         self.sharpness = sharpness
+
+        logger.info("ImageEnhancerTransformer initialized with parameters: %s", self.__dict__)
 
     def _validate_mode(self, mode: str):
         return mode in self.VALID_MODES

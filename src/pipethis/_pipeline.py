@@ -16,13 +16,15 @@ Example Usage:
     >>> p.run()
 """
 
-
-
 from contextlib import ExitStack
 from typing import List
 
 # Nice that pipeline only operates on baseclasses.
 from ._base import InputBase, OutputBase, TransformBase
+from ._logging import get_logger
+
+# Create local logger
+logger = get_logger(__name__)
 
 
 class Pipeline:
@@ -54,6 +56,7 @@ class Pipeline:
         """
         Initializes an empty pipeline with no inputs, transforms, or outputs.
         """
+        logger.debug("Init Pipeline")
         self.inputs: List[InputBase] = []
         self.transforms: List[TransformBase] = []
         self.outputs: List[OutputBase] = []

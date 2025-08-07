@@ -12,9 +12,13 @@ Example Usage:
     ...         file_output.write(item)
 """
 
-
 from ._base import OutputBase
+from ._logging import get_logger
 from ._streamitem import LineStreamItem
+
+# Create local logger
+logger = get_logger(__name__)
+
 
 class ToFile(OutputBase):
     """
@@ -35,6 +39,7 @@ class ToFile(OutputBase):
             encoding (str, optional): The file encoding. Defaults to "utf-8".
         """
         super().__init__()
+        logger.debug("Init ToFile with path: %s", file_name)
         self.file_name = file_name
         self.mode = mode
         self.encoding = encoding
