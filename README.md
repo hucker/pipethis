@@ -348,17 +348,20 @@ Your code has been rated at 9.84/10 (previous run: 9.82/10, +0.02)
 
 Tested on Python 3.10->3.14
 
+```shell
+(PipeThis) chuck@Chucks-Mac-mini PipeThis % tox
+
+```
+
 <!-- For now these are manually added -->
 ```text
 =============================================================================================================================================================================== 151 passed in 0.77s ===============================================================================================================================================================================
-  py310: OK (9.06 seconds)
-  py311: OK (6.09 seconds)
-  py312: OK (6.45 seconds)
-  py313: OK (6.42 seconds)
-  py314: OK (6.05 seconds)
-  lint: OK (6.20 seconds)
-
-
+  py310: OK (3.18 seconds)
+  py311: OK (1.57 seconds)
+  py312: OK (2.02 seconds)
+  py313: OK (1.84 seconds)
+  py314: OK (1.57 seconds)
+  lint: OK (1.58 seconds)
 ```
 
 *COVERAGE*

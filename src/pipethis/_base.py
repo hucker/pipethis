@@ -157,11 +157,14 @@ class InputBase(ABC):
             ValueError: If the input is not a string, a list of strings, or `None`, or if the
                 list contains elements that are not strings.
        """
+    def _list_or_string(self, items: list[str] | str | None, sep: str = " ") -> list[str]:
         if items is None or items == '':
             return []
-        elif isinstance(items, str):
+
+        if isinstance(items, str):
             return items.split(sep=sep)
-        elif isinstance(items, list):
+
+        if isinstance(items, list):
             for item in items:
                 if not isinstance(item, str):
                     msg = f"Input must be string or list of strings: `{item}` is a {type(item)}"
